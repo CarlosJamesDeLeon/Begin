@@ -1,0 +1,265 @@
+/* ═══════════════════════════════════════
+   NOTES MODULE
+═══════════════════════════════════════ */
+
+/* ── Notebook list items ── */
+.notebook-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.notebook-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 14px 14px;
+  cursor: pointer;
+  transition: border-color var(--transition), transform var(--transition);
+}
+.notebook-item:hover {
+  border-color: var(--text-3);
+  transform: translateX(2px);
+}
+
+.nb-color-dot {
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.nb-info { flex: 1; }
+.nb-name  { font-size: 14px; font-weight: 500; color: var(--text-1); }
+.nb-count { font-size: 12px; color: var(--text-3); margin-top: 2px; }
+
+.nb-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.nb-delete-btn {
+  width: 28px; height: 28px;
+  border-radius: 6px;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--text-3);
+  opacity: 0;
+  transition: opacity var(--transition), color var(--transition), background var(--transition);
+}
+.nb-delete-btn svg { width: 13px; height: 13px; }
+.nb-delete-btn:hover { color: #D4736B; background: #FDF0EE; }
+
+.notebook-item:hover .nb-delete-btn { 
+  opacity: 1; 
+}
+
+.nb-chevron {
+  width: 14px; height: 14px;
+  stroke: var(--text-3); fill: none;
+  stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round;
+  flex-shrink: 0;
+}
+
+/* ── Note list ── */
+.note-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.note-item {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 14px;
+  cursor: pointer;
+  transition: border-color var(--transition);
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+.note-item:hover { border-color: var(--text-3); }
+
+.note-item-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.note-item-title   { font-size: 14px; font-weight: 500; color: var(--text-1); }
+.note-item-preview { font-size: 12px; color: var(--text-3); margin-top: 4px; line-height: 1.5; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.note-item-date    { font-size: 11px; color: var(--text-3); margin-top: 8px; }
+
+.note-delete-btn {
+  width: 28px; height: 28px;
+  border-radius: 6px;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--text-3);
+  opacity: 0;
+  transition: opacity var(--transition), color var(--transition), background var(--transition);
+  margin-top: -4px;
+  margin-right: -4px;
+  flex-shrink: 0;
+}
+.note-delete-btn svg { width: 13px; height: 13px; }
+.note-delete-btn:hover { color: #D4736B; background: #FDF0EE; }
+
+.note-item:hover .note-delete-btn {
+  opacity: 1;
+}
+
+/* ── Desktop: note list as grid ── */
+@media (min-width: 720px) {
+  #view-note-list .view-body {
+    max-width: 900px;
+  }
+
+  .note-list {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+  }
+
+  .note-item {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .note-item-preview {
+    white-space: normal;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+}
+
+/* ── Editor ── */
+.editor-header {
+  justify-content: space-between;
+}
+
+.editor-notebook-pill {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--bg-off);
+  border-radius: 20px;
+  padding: 5px 12px;
+  font-size: 12px;
+  color: var(--text-2);
+}
+.editor-pill-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.editor-delete-btn {
+  width: 30px; height: 30px;
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--text-3);
+  transition: color var(--transition), background var(--transition);
+}
+.editor-delete-btn svg { width: 14px; height: 14px; }
+.editor-delete-btn:hover { color: #D4736B; background: #FDF0EE; }
+
+.editor-body {
+  padding: 24px 20px 100px;
+  max-width: 720px;
+  margin: 0 auto;
+  min-height: calc(100vh - 140px);
+}
+
+.editor-title-input {
+  width: 100%;
+  font-family: var(--font-serif);
+  font-size: 26px;
+  font-weight: 500;
+  color: var(--text-1);
+  letter-spacing: -0.5px;
+  line-height: 1.2;
+  margin-bottom: 6px;
+  caret-color: var(--text-1);
+}
+.editor-title-input::placeholder { color: var(--text-3); }
+
+.editor-meta {
+  font-size: 12px;
+  color: var(--text-3);
+  margin-bottom: 22px;
+}
+
+.editor-content-input {
+  width: 100%;
+  min-height: 50vh;
+  font-size: 15px;
+  color: var(--text-1);
+  line-height: 1.8;
+  resize: none;
+  caret-color: var(--text-1);
+}
+.editor-content-input::placeholder { color: var(--text-3); }
+
+/* ── Toolbar ── */
+.editor-toolbar {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  background: var(--bg);
+  border-top: 1px solid var(--border);
+  padding: 10px 16px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  z-index: 20;
+}
+
+.toolbar-btn {
+  width: 32px; height: 32px;
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--text-2);
+  transition: background var(--transition), color var(--transition);
+}
+.toolbar-btn svg { width: 14px; height: 14px; }
+.toolbar-btn:hover { background: var(--bg-sink); color: var(--text-1); }
+
+.toolbar-sep {
+  width: 1px; height: 18px;
+  background: var(--border);
+  margin: 0 4px;
+}
+.toolbar-spacer { flex: 1; }
+
+.editor-save-status {
+  font-size: 11px;
+  color: var(--text-3);
+  font-variant-numeric: tabular-nums;
+  transition: opacity 0.3s;
+}
+
+/* ── Desktop editor ── */
+@media (min-width: 720px) {
+  .editor-body {
+    padding: 40px 60px 120px;
+  }
+
+  .editor-title-input { font-size: 32px; margin-bottom: 8px; }
+  .editor-content-input { font-size: 16px; }
+
+  .editor-toolbar {
+    padding: 10px 24px;
+  }
+}
+
+/* ── Touch Devices (No Hover) ── */
+@media (hover: none) and (pointer: coarse) {
+  .nb-delete-btn, .note-delete-btn {
+    opacity: 1;
+  }
+}
