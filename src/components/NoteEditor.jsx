@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import SketchPad from './SketchPad';
 
 const NoteEditor = ({ store, navigate, noteId }) => {
   const note = store.notes.find(n => n.id === noteId);
@@ -6,14 +7,17 @@ const NoteEditor = ({ store, navigate, noteId }) => {
 
   const [title, setTitle] = useState(note?.title || '');
   const [content, setContent] = useState(note?.content || '');
+  const [sketchDataUrl, setSketchDataUrl] = useState(note?.sketchDataUrl || '');
+  const [mode, setMode] = useState('text');
   const [saveStatus, setSaveStatus] = useState('Saved');
   const timerRef = useRef(null);
   const contentRef = useRef(null);
 
   useEffect(() => {
     if (!note) return;
-    setTitle(note.title);
-    setContent(note.content);
+    setTitle(note.title || '');
+    setContent(note.content || '');
+    setSketchDataUrl(note.sketchDataUrl || '');
   }, [noteId]);
 
   const handleAutoSave = () => {
@@ -25,6 +29,7 @@ const NoteEditor = ({ store, navigate, noteId }) => {
         ...note,
         title,
         content,
+        sketchDataUrl,
         updatedAt: Date.now(),
       });
       setSaveStatus('Saved');
@@ -32,10 +37,10 @@ const NoteEditor = ({ store, navigate, noteId }) => {
   };
 
   useEffect(() => {
-    if (title !== note?.title || content !== note?.content) {
+    if (title !== note?.title || content !== note?.content || sketchDataUrl !== note?.sketchDataUrl) {
       handleAutoSave();
     }
-  }, [title, content]);
+  }, [title, content, sketchDataUrl]);
 
   const handleDelete = () => {
     if (window.confirm('Delete this note?')) {
@@ -106,18 +111,40 @@ const NoteEditor = ({ store, navigate, noteId }) => {
         <div className="editor-meta">
           {store.formatDate(note.updatedAt)} · {nb?.name}
         </div>
-        <textarea
-          ref={contentRef}
-          className="editor-content-input"
-          placeholder="Start writing…"
-          spellCheck="true"
-          value={content}
-          onChange={(e) => setContent(e.target.value)}
-        ></textarea>
+        <div className={`editor-content-area ${mode === 'sketch' ? 'sketch-active' : ''}`}>
+          {mode === 'text' && (
+            <textarea
+              ref={contentRef}
+              className="editor-content-input"
+              placeholder="Start writing…"
+              spellCheck="true"
+              value={content}
+              onChange={(e) => setContent(e.target.value)}
+            ></textarea>
+          )}
+          {mode === 'sketch' && (
+            <SketchPad initialDataUrl={sketchDataUrl} onSave={setSketchDataUrl} />
+          )}
+        </div>
       </div>
 
       <div className="editor-toolbar">
-        <button className="toolbar-btn" title="Bold" onClick={() => formatText('bold')}>
+        <button className={`toolbar-btn ${mode === 'text' ? 'active' : ''}`} title="Text Mode" onClick={() => setMode('text')}>
+          <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M1 3h12M4 3v10M10 3v10" />
+            <path d="M2.5 3L2.5 2C2.5 1.44772 2.94772 1 3.5 1L10.5 1C11.0523 1 11.5 1.44772 11.5 2L11.5 3" />
+          </svg>
+        </button>
+        <button className={`toolbar-btn ${mode === 'sketch' ? 'active' : ''}`} title="Sketch Mode" onClick={() => setMode('sketch')}>
+          <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M10 2l2 2-8 8H2v-2L10 2z" />
+          </svg>
+        </button>
+        <div className="toolbar-sep"></div>
+        {mode === 'text' && (
+          <>
+            <button className="toolbar-btn" title="Bold" onClick={() => formatText('bold')}>
+
           <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
             <path d="M4 3h4a2.5 2.5 0 010 5H4zM4 8h4.5a2.5 2.5 0 010 5H4z" />
           </svg>
@@ -141,6 +168,8 @@ const NoteEditor = ({ store, navigate, noteId }) => {
             <polyline points="4.5,7 6,8.5 9.5,5" />
           </svg>
         </button>
+        </>
+        )}
         <div className="toolbar-spacer"></div>
         <div className="editor-save-status">{saveStatus}</div>
       </div>
