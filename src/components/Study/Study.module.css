@@ -2,9 +2,10 @@
 
 .page {
   min-height: 100vh;
-  background: #FAFAF8;
+  background: var(--bg);
   font-family: 'DM Sans', system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
+  transition: background 0.25s ease;
 }
 
 /* ── Header ── */
@@ -13,11 +14,12 @@
   align-items: center;
   justify-content: space-between;
   padding: 18px 18px 14px;
-  border-bottom: 1px solid #EDEAE6;
-  background: #FAFAF8;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg);
   position: sticky;
   top: 0;
   z-index: 30;
+  transition: background 0.25s ease, border-color 0.25s ease;
 }
 
 .headerLeft {
@@ -27,22 +29,37 @@
 }
 
 .backBtn {
-  width: 32px; height: 32px;
+  width: 32px;
+  height: 32px;
   border-radius: 9px;
-  background: #F0EDE8;
+  background: var(--bg-off);
   border: none;
-  display: flex; align-items: center; justify-content: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   cursor: pointer;
   transition: background 0.15s;
   flex-shrink: 0;
 }
-.backBtn:hover { background: #EDEAE6; }
-.backBtn svg { width: 13px; height: 13px; stroke: #666; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+.backBtn:hover {
+  background: var(--border);
+}
+
+.backBtn svg {
+  width: 13px;
+  height: 13px;
+  stroke: var(--text-2);
+  fill: none;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
 
 .headerTitle {
   font-size: 18px;
   font-weight: 600;
-  color: #1A1A1A;
+  color: var(--text-1);
   letter-spacing: -0.3px;
 }
 
@@ -50,32 +67,42 @@
   display: flex;
   align-items: center;
   gap: 5px;
-  background: #F0EDE8;
+  background: var(--bg-off);
   border-radius: 20px;
   padding: 5px 12px;
   font-size: 12px;
   font-weight: 600;
-  color: #7A6A5A;
+  color: var(--text-2);
+  transition: background 0.25s ease;
 }
-.streakPill svg { width: 12px; height: 12px; stroke: #A09080; fill: none; stroke-width: 1.8; stroke-linecap: round; }
 
-/* ── Layout ── */
+.streakPill svg {
+  width: 12px;
+  height: 12px;
+  stroke: var(--text-3);
+  fill: none;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+}
+
+/* ── Body layout ── */
 .body {
   padding-bottom: 60px;
 }
 
-/* ── Technique selector ── */
-.techniqueSection {
-  padding: 16px 18px 0;
-}
-
+/* ── Section label ── */
 .sectionLabel {
   font-size: 10px;
   font-weight: 600;
   letter-spacing: 1.4px;
   text-transform: uppercase;
-  color: #C0BBB4;
+  color: var(--text-3);
   margin-bottom: 10px;
+}
+
+/* ── Technique cards ── */
+.techniqueSection {
+  padding: 16px 18px 0;
 }
 
 .techniqueGrid {
@@ -85,34 +112,46 @@
 }
 
 .techniqueCard {
-  background: white;
-  border: 1.5px solid #ECEAE6;
+  background: var(--bg-card);
+  border: 1.5px solid var(--border);
   border-radius: 14px;
   padding: 13px 13px 11px;
   cursor: pointer;
-  transition: border-color 0.15s, transform 0.15s;
+  transition: border-color 0.15s, transform 0.15s, background 0.25s ease;
   text-align: left;
   font-family: 'DM Sans', sans-serif;
 }
-.techniqueCard:hover { transform: translateY(-1px); }
-.techniqueCard.selected { border-width: 2px; }
+
+.techniqueCard:hover {
+  transform: translateY(-1px);
+}
+
+.techniqueCard.selected {
+  border-width: 2px;
+}
+
+.techniqueCard:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
 
 .techName {
   font-size: 13px;
   font-weight: 600;
-  color: #1A1A1A;
+  color: var(--text-1);
   margin-bottom: 2px;
 }
 
 .techDuration {
   font-size: 11px;
-  color: #C0BBB4;
+  color: var(--text-3);
   margin-bottom: 6px;
 }
 
 .techDesc {
   font-size: 11px;
-  color: #AAA;
+  color: var(--text-2);
   line-height: 1.5;
 }
 
@@ -125,7 +164,6 @@
   margin-bottom: 6px;
 }
 
-/* custom inputs */
 .customRow {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -135,16 +173,19 @@
 
 .customInput {
   width: 100%;
-  background: #F5F2EE;
-  border: 1px solid #EDEAE6;
+  background: var(--bg-sink);
+  border: 1px solid var(--border);
   border-radius: 8px;
   padding: 7px 10px;
   font-size: 12px;
   font-family: 'DM Sans', sans-serif;
-  color: #1A1A1A;
-  outline: none;
+  color: var(--text-1);
+  transition: background 0.25s ease, border-color 0.25s ease;
 }
-.customInput::placeholder { color: #C0BBB4; }
+
+.customInput::placeholder {
+  color: var(--text-3);
+}
 
 /* ── Timer ── */
 .timerSection {
@@ -152,7 +193,8 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  border-bottom: 1px solid #EDEAE6;
+  border-bottom: 1px solid var(--border);
+  transition: border-color 0.25s ease;
 }
 
 .ringWrap {
@@ -160,7 +202,10 @@
   margin-bottom: 16px;
 }
 
-.ringWrap svg { transform: rotate(-90deg); display: block; }
+.ringWrap svg {
+  transform: rotate(-90deg);
+  display: block;
+}
 
 .ringCenter {
   position: absolute;
@@ -174,7 +219,7 @@
 .ringTime {
   font-size: 42px;
   font-weight: 600;
-  color: #1A1A1A;
+  color: var(--text-1);
   letter-spacing: -2px;
   font-variant-numeric: tabular-nums;
   line-height: 1;
@@ -182,7 +227,7 @@
 
 .ringPhase {
   font-size: 11px;
-  color: #C0BBB4;
+  color: var(--text-3);
   margin-top: 5px;
   font-weight: 600;
   letter-spacing: 1.2px;
@@ -197,29 +242,58 @@
 }
 
 .ctrlSec {
-  width: 42px; height: 42px;
+  width: 42px;
+  height: 42px;
   border-radius: 12px;
-  background: #F0EDE8;
+  background: var(--bg-off);
   border: none;
-  display: flex; align-items: center; justify-content: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   cursor: pointer;
   transition: background 0.15s;
 }
-.ctrlSec:hover { background: #EDEAE6; }
-.ctrlSec svg { width: 16px; height: 16px; stroke: #888; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+
+.ctrlSec:hover {
+  background: var(--border);
+}
+
+.ctrlSec svg {
+  width: 16px;
+  height: 16px;
+  stroke: var(--text-2);
+  fill: none;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
 
 .ctrlPlay {
-  width: 60px; height: 60px;
+  width: 60px;
+  height: 60px;
   border-radius: 18px;
-  background: #1A1A1A;
+  background: var(--text-1);
   border: none;
-  display: flex; align-items: center; justify-content: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   cursor: pointer;
-  transition: opacity 0.15s, transform 0.1s;
+  transition: opacity 0.15s, transform 0.1s, background 0.25s ease;
 }
-.ctrlPlay:hover { opacity: 0.85; }
-.ctrlPlay:active { transform: scale(0.96); }
-.ctrlPlay svg { width: 22px; height: 22px; fill: white; }
+
+.ctrlPlay:hover {
+  opacity: 0.85;
+}
+
+.ctrlPlay:active {
+  transform: scale(0.96);
+}
+
+.ctrlPlay svg {
+  width: 22px;
+  height: 22px;
+  fill: var(--bg);
+}
 
 .sessionDots {
   display: flex;
@@ -228,16 +302,24 @@
 }
 
 .sDot {
-  width: 8px; height: 8px;
+  width: 8px;
+  height: 8px;
   border-radius: 50%;
-  background: #ECEAE6;
+  background: var(--border);
   transition: background 0.3s;
 }
-.sDot.done { background: #1A1A1A; }
-.sDot.current { background: #D4956B; }
+
+.sDot.done {
+  background: var(--text-1);
+}
+
+.sDot.current {
+  background: #D4956B;
+}
+
 .sDotLabel {
   font-size: 11px;
-  color: #C0BBB4;
+  color: var(--text-3);
   margin-left: 6px;
 }
 
@@ -256,19 +338,20 @@
 .gardenTitle {
   font-size: 13px;
   font-weight: 600;
-  color: #1A1A1A;
+  color: var(--text-1);
 }
 
 .gardenDay {
   font-size: 11px;
-  color: #C0BBB4;
+  color: var(--text-3);
 }
 
 .gardenPlot {
-  background: #F0EDE8;
+  background: var(--bg-off);
   border-radius: 16px;
   padding: 14px 12px 10px;
   overflow: hidden;
+  transition: background 0.25s ease;
 }
 
 .plantsRow {
@@ -284,25 +367,35 @@
   align-items: flex-end;
   justify-content: center;
   flex: 1;
-  animation: growIn 0.4s cubic-bezier(.34,1.56,.64,1) both;
+  animation: growIn 0.4s cubic-bezier(.34, 1.56, .64, 1) both;
 }
 
 @keyframes growIn {
-  from { opacity: 0; transform: scaleY(0.3) translateY(20px); transform-origin: bottom; }
-  to   { opacity: 1; transform: scaleY(1) translateY(0); transform-origin: bottom; }
+  from {
+    opacity: 0;
+    transform: scaleY(0.3) translateY(20px);
+    transform-origin: bottom;
+  }
+
+  to {
+    opacity: 1;
+    transform: scaleY(1) translateY(0);
+    transform-origin: bottom;
+  }
 }
 
 .gardenGround {
   height: 5px;
-  background: #D4C8B8;
+  background: var(--border-md);
   border-radius: 3px;
   margin-top: 4px;
+  transition: background 0.25s ease;
 }
 
 .gardenMood {
   text-align: center;
   font-size: 11px;
-  color: #A09080;
+  color: var(--text-3);
   font-style: italic;
   margin-top: 8px;
 }
@@ -311,52 +404,100 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  background: white;
-  border: 1px solid #ECEAE6;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
   border-radius: 13px;
   padding: 11px 13px;
   margin-top: 10px;
+  transition: background 0.25s ease, border-color 0.25s ease;
 }
 
 .badgeIcon {
-  width: 30px; height: 30px;
+  width: 30px;
+  height: 30px;
   border-radius: 9px;
   background: #EAF3EE;
-  display: flex; align-items: center; justify-content: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   flex-shrink: 0;
 }
-.badgeIcon svg { width: 14px; height: 14px; stroke: #5DAA88; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
-.badgeText { flex: 1; }
-.badgeMain { font-size: 12px; font-weight: 500; color: #1A1A1A; }
-.badgeSub  { font-size: 11px; color: #C0BBB4; margin-top: 1px; }
-.badgeCount { font-size: 20px; font-weight: 600; color: #1A1A1A; letter-spacing: -0.5px; }
 
-/* ── Stats row ── */
+[data-theme="dark"] .badgeIcon {
+  background: #0F2A1E;
+}
+
+.badgeIcon svg {
+  width: 14px;
+  height: 14px;
+  stroke: #5DAA88;
+  fill: none;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.badgeText {
+  flex: 1;
+}
+
+.badgeMain {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-1);
+}
+
+.badgeSub {
+  font-size: 11px;
+  color: var(--text-3);
+  margin-top: 1px;
+}
+
+.badgeCount {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--text-1);
+  letter-spacing: -0.5px;
+}
+
+/* ── Stats ── */
 .statsRow {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 1px;
-  background: #EDEAE6;
-  border-top: 1px solid #EDEAE6;
-  border-bottom: 1px solid #EDEAE6;
+  background: var(--border);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
   margin-top: 18px;
+  transition: background 0.25s ease;
 }
 
 .statCell {
-  background: #FAFAF8;
+  background: var(--bg);
   padding: 14px 18px;
+  transition: background 0.25s ease;
 }
 
 .statVal {
   font-family: 'Lora', Georgia, serif;
   font-size: 22px;
   font-weight: 500;
-  color: #1A1A1A;
+  color: var(--text-1);
   letter-spacing: -0.5px;
 }
 
-.statLbl  { font-size: 11px; color: #C0BBB4; margin-top: 3px; }
-.statUp   { font-size: 11px; color: #5DAA88; margin-top: 4px; font-weight: 500; }
+.statLbl {
+  font-size: 11px;
+  color: var(--text-3);
+  margin-top: 3px;
+}
+
+.statUp {
+  font-size: 11px;
+  color: #5DAA88;
+  margin-top: 4px;
+  font-weight: 500;
+}
 
 /* ── Done screen ── */
 .doneWrap {
@@ -368,16 +509,24 @@
 }
 
 @keyframes fadeUp {
-  from { opacity: 0; transform: translateY(12px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .doneGarden {
-  background: #F0EDE8;
+  background: var(--bg-off);
   border-radius: 18px;
   width: 100%;
   padding: 18px 12px 10px;
   margin-bottom: 20px;
+  transition: background 0.25s ease;
 }
 
 .doneGardenPlants {
@@ -389,16 +538,17 @@
 
 .doneGround {
   height: 5px;
-  background: #D4C8B8;
+  background: var(--border-md);
   border-radius: 3px;
   margin-top: 4px;
+  transition: background 0.25s ease;
 }
 
 .doneTitle {
   font-family: 'Lora', Georgia, serif;
   font-size: 22px;
   font-weight: 500;
-  color: #1A1A1A;
+  color: var(--text-1);
   letter-spacing: -0.4px;
   margin-bottom: 6px;
   text-align: center;
@@ -406,7 +556,7 @@
 
 .doneSub {
   font-size: 13px;
-  color: #AAA;
+  color: var(--text-3);
   text-align: center;
   line-height: 1.7;
   margin-bottom: 16px;
@@ -422,6 +572,10 @@
   margin-bottom: 18px;
 }
 
+[data-theme="dark"] .doneFlowerBadge {
+  background: #0F2A1E;
+}
+
 .doneGrid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -431,19 +585,33 @@
 }
 
 .doneStat {
-  background: white;
-  border: 1px solid #ECEAE6;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
   border-radius: 13px;
   padding: 13px 14px;
+  transition: background 0.25s ease, border-color 0.25s ease;
 }
-.doneStatVal { font-size: 20px; font-weight: 600; color: #1A1A1A; letter-spacing: -0.5px; }
-.doneStatLbl { font-size: 10px; color: #C0BBB4; margin-top: 3px; text-transform: uppercase; letter-spacing: 0.5px; }
+
+.doneStatVal {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--text-1);
+  letter-spacing: -0.5px;
+}
+
+.doneStatLbl {
+  font-size: 10px;
+  color: var(--text-3);
+  margin-top: 3px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
 
 .primaryBtn {
   width: 100%;
   padding: 14px;
-  background: #1A1A1A;
-  color: white;
+  background: var(--text-1);
+  color: var(--bg);
   border: none;
   border-radius: 13px;
   font-size: 14px;
@@ -451,16 +619,19 @@
   font-family: 'DM Sans', sans-serif;
   cursor: pointer;
   margin-bottom: 8px;
-  transition: opacity 0.15s;
+  transition: opacity 0.15s, background 0.25s ease, color 0.25s ease;
 }
-.primaryBtn:hover { opacity: 0.85; }
+
+.primaryBtn:hover {
+  opacity: 0.85;
+}
 
 .secondaryBtn {
   width: 100%;
   padding: 12px;
   background: none;
-  color: #AAA;
-  border: 1px solid #ECEAE6;
+  color: var(--text-3);
+  border: 1px solid var(--border);
   border-radius: 13px;
   font-size: 13px;
   font-weight: 500;
@@ -468,26 +639,28 @@
   cursor: pointer;
   transition: border-color 0.15s, color 0.15s;
 }
-.secondaryBtn:hover { border-color: #C0BBB4; color: #888; }
 
-/* ══════════════════════════════════
-   DESKTOP (≥ 768px)
-══════════════════════════════════ */
+.secondaryBtn:hover {
+  border-color: var(--text-3);
+  color: var(--text-2);
+}
+
+/* ── Desktop ── */
 @media (min-width: 768px) {
   .body {
     display: grid;
     grid-template-columns: 320px 1fr;
-    grid-template-rows: auto;
     min-height: calc(100vh - 61px);
     padding-bottom: 0;
   }
 
   .leftCol {
-    border-right: 1px solid #EDEAE6;
+    border-right: 1px solid var(--border);
     overflow-y: auto;
     height: calc(100vh - 61px);
     position: sticky;
     top: 61px;
+    transition: border-color 0.25s ease;
   }
 
   .rightCol {
@@ -500,14 +673,12 @@
     padding: 28px 20px 20px;
   }
 
-  .ringTime { font-size: 48px; }
+  .ringTime {
+    font-size: 48px;
+  }
 
   .techniqueSection {
     padding: 22px 20px 0;
-  }
-
-  .techniqueGrid {
-    grid-template-columns: 1fr 1fr;
   }
 
   .gardenSection {
@@ -524,8 +695,23 @@
     padding: 32px 24px 40px;
   }
 
-  .ringWrap { margin-bottom: 20px; }
-  .ctrlPlay { width: 66px; height: 66px; border-radius: 20px; }
-  .ctrlPlay svg { width: 24px; height: 24px; }
-  .ctrlSec { width: 46px; height: 46px; }
+  .ringWrap {
+    margin-bottom: 20px;
+  }
+
+  .ctrlPlay {
+    width: 66px;
+    height: 66px;
+    border-radius: 20px;
+  }
+
+  .ctrlPlay svg {
+    width: 24px;
+    height: 24px;
+  }
+
+  .ctrlSec {
+    width: 46px;
+    height: 46px;
+  }
 }

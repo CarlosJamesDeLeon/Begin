@@ -1,22 +1,23 @@
-import { useState, useEffect } from 'react'
-import { useStore } from './hooks/useStore'
-import { useFocusSync } from './hooks/useFocusSync'
-import Dashboard from './components/Dashboard'
-import NotebookList from './components/NotebookList'
-import NoteList from './components/NoteList'
-import NoteEditor from './components/NoteEditor'
-import Finance from './components/Finance'
-import Study from './components/Study'
+import { useState } from 'react';
+import { useStore } from './hooks/useStore';
+import { useFocusSync } from './hooks/useFocusSync';
+import { useTheme } from './hooks/useTheme';
+import Dashboard from './components/Dashboard';
+import NotebookList from './components/NotebookList';
+import NoteList from './components/NoteList';
+import NoteEditor from './components/NoteEditor';
+import Finance from './components/Finance';
+import Study from './components/Study';
 
 function App() {
   const [currentView, setCurrentView] = useState('dashboard');
   const [activeNotebookId, setActiveNotebookId] = useState(null);
   const [activeNoteId, setActiveNoteId] = useState(null);
-  
-  // Custom hook to broadcast currentView changes to iframe parent
-  useFocusSync(currentView);
-  
+
   const store = useStore();
+  const { dark, toggle: toggleTheme } = useTheme();
+
+  useFocusSync(currentView);
 
   const navigate = (viewId, params = {}) => {
     if (params.notebookId) setActiveNotebookId(params.notebookId);
@@ -27,27 +28,21 @@ function App() {
   return (
     <>
       {currentView === 'dashboard' && (
-        <Dashboard store={store} navigate={navigate} />
+        <Dashboard
+          store={store}
+          navigate={navigate}
+          dark={dark}
+          toggleTheme={toggleTheme}
+        />
       )}
       {currentView === 'notebooks' && (
-        <NotebookList 
-          store={store} 
-          navigate={navigate} 
-        />
+        <NotebookList store={store} navigate={navigate} />
       )}
       {currentView === 'note-list' && (
-        <NoteList 
-          store={store} 
-          navigate={navigate} 
-          notebookId={activeNotebookId} 
-        />
+        <NoteList store={store} navigate={navigate} notebookId={activeNotebookId} />
       )}
       {currentView === 'note-editor' && (
-        <NoteEditor 
-          store={store} 
-          navigate={navigate} 
-          noteId={activeNoteId} 
-        />
+        <NoteEditor store={store} navigate={navigate} noteId={activeNoteId} />
       )}
       {currentView === 'finance' && (
         <Finance onBack={() => navigate('dashboard')} />
@@ -59,4 +54,4 @@ function App() {
   );
 }
 
-export default App
+export default App;

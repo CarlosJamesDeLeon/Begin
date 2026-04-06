@@ -2,7 +2,6 @@
    DASHBOARD — MOBILE FIRST
 ═══════════════════════════════════════ */
 
-/* ── Mobile top bar ── */
 .mobile-topbar {
   display: flex;
   align-items: center;
@@ -25,7 +24,6 @@
   letter-spacing: 0.5px;
 }
 
-/* ── Mobile greeting ── */
 .mobile-greeting {
   padding: 4px 18px 18px;
   border-bottom: 1px solid var(--border);
@@ -39,7 +37,11 @@
   letter-spacing: -0.4px;
   line-height: 1.2;
 }
-.greeting-main em { font-style: italic; color: var(--text-2); }
+
+.greeting-main em {
+  font-style: italic;
+  color: var(--text-2);
+}
 
 .greeting-sub {
   font-size: 12px;
@@ -47,7 +49,7 @@
   margin-top: 5px;
 }
 
-/* ── Stats grid ── */
+/* ── Stats ── */
 .stats-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -59,6 +61,7 @@
 .stat-tile {
   background: var(--bg);
   padding: 16px 18px;
+  transition: background 0.25s ease;
 }
 
 .stat-val {
@@ -81,15 +84,25 @@
   font-weight: 500;
   margin-top: 5px;
 }
-.stat-delta.up     { color: #5DAA88; }
-.stat-delta.dn     { color: #D4736B; }
-.stat-delta.neutral { color: var(--text-3); }
 
-/* ── Mobile nav tabs ── */
+.stat-delta.up {
+  color: #5DAA88;
+}
+
+.stat-delta.dn {
+  color: #D4736B;
+}
+
+.stat-delta.neutral {
+  color: var(--text-3);
+}
+
+/* ── Mobile nav ── */
 .mobile-nav {
   display: flex;
   border-bottom: 1px solid var(--border);
   background: var(--bg);
+  transition: background 0.25s ease;
 }
 
 .mobile-tab {
@@ -105,17 +118,23 @@
   font-weight: 500;
   transition: color var(--transition), border-color var(--transition);
 }
+
 .mobile-tab svg {
-  width: 18px; height: 18px;
-  stroke: currentColor; fill: none;
-  stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round;
+  width: 18px;
+  height: 18px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
+
 .mobile-tab.active {
   color: var(--text-1);
   border-bottom-color: var(--text-1);
 }
 
-/* ── Recent section ── */
+/* ── Recent ── */
 .recent-section {
   padding: 18px 18px 80px;
 }
@@ -135,28 +154,65 @@
   cursor: pointer;
   transition: opacity var(--transition);
 }
-.recent-item:last-child { border-bottom: none; }
-.recent-item:hover { opacity: 0.7; }
+
+.recent-item:last-child {
+  border-bottom: none;
+}
+
+.recent-item:hover {
+  opacity: 0.7;
+}
 
 .ri-icon {
-  width: 34px; height: 34px;
+  width: 34px;
+  height: 34px;
   border-radius: 10px;
-  display: flex; align-items: center; justify-content: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   flex-shrink: 0;
 }
+
 .ri-icon svg {
-  width: 16px; height: 16px;
-  fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round;
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 
-.ri-name  { font-size: 13px; font-weight: 500; color: var(--text-1); }
-.ri-meta  { font-size: 11px; color: var(--text-3); margin-top: 2px; }
-.ri-time  { font-size: 11px; color: var(--text-3); margin-left: auto; white-space: nowrap; }
+.ri-name {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-1);
+}
 
-/* ── Hide desktop elements on mobile ── */
+.ri-meta {
+  font-size: 11px;
+  color: var(--text-3);
+  margin-top: 2px;
+}
+
+.ri-time {
+  font-size: 11px;
+  color: var(--text-3);
+  margin-left: auto;
+  white-space: nowrap;
+}
+
+/* hide desktop on mobile */
 .desktop-sidebar,
-.desktop-main { display: none; }
+.desktop-main {
+  display: none;
+}
 
+/* ── Topbar theme toggle slot ── */
+.topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
 
 /* ═══════════════════════════════════════
    DASHBOARD — DESKTOP (≥ 720px)
@@ -174,12 +230,13 @@
     overflow: hidden;
   }
 
-  /* hide all mobile-only elements */
   .mobile-topbar,
   .mobile-greeting,
   .stats-grid,
   .mobile-nav,
-  .recent-section { display: none; }
+  .recent-section {
+    display: none;
+  }
 
   /* ── Sidebar ── */
   .desktop-sidebar {
@@ -190,10 +247,10 @@
     background: var(--bg-off);
     border-right: 1px solid var(--border);
     padding: 18px 0 20px;
-    gap: 0;
     height: 100vh;
     position: sticky;
     top: 0;
+    transition: background 0.25s ease, border-color 0.25s ease;
   }
 
   .sidebar-logo {
@@ -212,27 +269,51 @@
     gap: 6px;
     width: 100%;
     padding: 0 8px;
+    flex: 1;
   }
 
   .sidebar-btn {
-    width: 40px; height: 40px;
+    width: 40px;
+    height: 40px;
     border-radius: 11px;
-    display: flex; align-items: center; justify-content: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     color: var(--text-3);
     transition: background var(--transition), color var(--transition);
   }
+
   .sidebar-btn svg {
-    width: 18px; height: 18px;
-    stroke: currentColor; fill: none;
-    stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round;
+    width: 18px;
+    height: 18px;
+    stroke: currentColor;
+    fill: none;
+    stroke-width: 1.6;
+    stroke-linecap: round;
+    stroke-linejoin: round;
   }
-  .sidebar-btn:hover { background: var(--border); color: var(--text-1); }
-  .sidebar-btn.active { background: var(--text-1); color: white; }
+
+  .sidebar-btn:hover {
+    background: var(--border);
+    color: var(--text-1);
+  }
+
+  .sidebar-btn.active {
+    background: var(--text-1);
+    color: var(--bg);
+  }
 
   .sidebar-sep {
-    width: 24px; height: 1px;
+    width: 24px;
+    height: 1px;
     background: var(--border);
     margin: 6px 0;
+  }
+
+  /* theme toggle at the bottom of sidebar */
+  .sidebar-theme-toggle {
+    margin-top: auto;
+    padding-top: 12px;
   }
 
   /* ── Desktop main ── */
@@ -242,6 +323,7 @@
     padding: 28px 36px 36px;
     overflow-y: auto;
     max-width: 860px;
+    transition: background 0.25s ease;
   }
 
   .desktop-toprow {
@@ -258,7 +340,11 @@
     color: var(--text-1);
     letter-spacing: -0.5px;
   }
-  .desktop-greeting em { font-style: italic; color: var(--text-2); }
+
+  .desktop-greeting em {
+    font-style: italic;
+    color: var(--text-2);
+  }
 
   .desktop-greeting-sub {
     font-size: 13px;
@@ -275,6 +361,7 @@
     white-space: nowrap;
     margin-top: 4px;
     flex-shrink: 0;
+    transition: background 0.25s ease;
   }
 
   /* ── Desktop stats ── */
@@ -286,15 +373,25 @@
   }
 
   .d-stat-tile {
-    background: white;
+    background: var(--bg-card);
     border: 1px solid var(--border);
     border-radius: var(--radius-md);
     padding: 16px 16px 14px;
+    transition: background 0.25s ease, border-color 0.25s ease;
   }
 
-  .d-stat-tile .stat-val  { font-size: 22px; }
-  .d-stat-tile .stat-label { font-size: 11px; }
-  .d-stat-tile .stat-delta { font-size: 11px; margin-top: 8px; }
+  .d-stat-tile .stat-val {
+    font-size: 22px;
+  }
+
+  .d-stat-tile .stat-label {
+    font-size: 11px;
+  }
+
+  .d-stat-tile .stat-delta {
+    font-size: 11px;
+    margin-top: 8px;
+  }
 
   /* ── Desktop recent ── */
   .desktop-recent-grid {
@@ -307,22 +404,30 @@
     display: flex;
     align-items: center;
     gap: 12px;
-    background: white;
+    background: var(--bg-card);
     border: 1px solid var(--border);
     border-radius: var(--radius-md);
     padding: 14px;
     cursor: pointer;
-    transition: border-color var(--transition);
+    transition: border-color var(--transition), background 0.25s ease;
   }
-  .d-recent-item:hover { border-color: var(--text-3); }
+
+  .d-recent-item:hover {
+    border-color: var(--text-3);
+  }
 
   .d-ri-arr {
     margin-left: auto;
     flex-shrink: 0;
   }
+
   .d-ri-arr svg {
-    width: 13px; height: 13px;
-    stroke: var(--text-3); fill: none;
-    stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round;
+    width: 13px;
+    height: 13px;
+    stroke: var(--text-3);
+    fill: none;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
   }
 }
