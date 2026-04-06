@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useStore } from './hooks/useStore'
+import { useFocusSync } from './hooks/useFocusSync'
 import Dashboard from './components/Dashboard'
 import NotebookList from './components/NotebookList'
 import NoteList from './components/NoteList'
@@ -11,6 +12,9 @@ function App() {
   const [currentView, setCurrentView] = useState('dashboard');
   const [activeNotebookId, setActiveNotebookId] = useState(null);
   const [activeNoteId, setActiveNoteId] = useState(null);
+  
+  // Custom hook to broadcast currentView changes to iframe parent
+  useFocusSync(currentView);
   
   const store = useStore();
 
