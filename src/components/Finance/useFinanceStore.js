@@ -24,13 +24,19 @@ export function useFinanceStore(activeOptionId = 'general') {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
   }, [data]);
 
-  // Backward compatibility: build a safe list of options
-  const safeOptions = data.options || [
-    { id: 'general', name: 'General' },
-    ...((data.goals || [{ id: 'default', name: 'General Savings' }]).map(g => ({
-      id: g.id === 'default' ? 'savings' : g.id,
-      name: g.name
-    })))
+  // Build safe options list
+  const rawOptions = data.options || [];
+
+  // Categorize options: custom vs built-in
+  const customOptions = rawOptions.filter(o => o.id !== 'general' && o.id !== 'savings');
+  const generalOpt = rawOptions.find(o => o.id === 'general') || { id: 'general', name: 'General' };
+  const savingsOpt = rawOptions.find(o => o.id === 'savings') || { id: 'savings', name: 'General Savings' };
+
+  // Final list: custom ones first (new ones will be at start of custom section), then defaults
+  const safeOptions = [
+    ...customOptions,
+    generalOpt,
+    savingsOpt
   ];
 
   function getTransactionOptionId(tx) {
@@ -95,16 +101,19 @@ export function useFinanceStore(activeOptionId = 'general') {
     };
     
     setData(prev => {
-      const opts = prev.options || [
-        { id: 'general', name: 'General' },
-        ...((prev.goals || [{ id: 'default', name: 'General Savings' }]).map(g => ({
-          id: g.id === 'default' ? 'savings' : g.id,
-          name: g.name
-        })))
-      ];
-      return { ...prev, options: [...opts, newOpt] };
+      const opts = prev.options || [];
+      return { ...prev, options: [newOpt, ...opts] };
     });
     return newOpt.id;
+  }
+
+  function deleteOption(id) {
+    if (id === 'general' || id === 'savings') return;
+    setData(prev => {
+      const newOptions = (prev.options || []).filter(o => o.id !== id);
+      const newTransactions = (prev.transactions || []).filter(t => t.optionId !== id && getTransactionOptionId(t) !== id);
+      return { ...prev, options: newOptions, transactions: newTransactions };
+    });
   }
 
   function clearAll() {
@@ -121,6 +130,7 @@ export function useFinanceStore(activeOptionId = 'general') {
     spendMoney, 
     deleteTransaction, 
     addOption,
+    deleteOption,
     clearAll 
   };
 }

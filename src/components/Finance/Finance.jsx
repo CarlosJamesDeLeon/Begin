@@ -41,6 +41,13 @@ const IconSaved = () => (
   </svg>
 );
 
+const IconX = () => (
+  <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <line x1="10.5" y1="3.5" x2="3.5" y2="10.5"/>
+    <line x1="3.5" y1="3.5" x2="10.5" y2="10.5"/>
+  </svg>
+);
+
 const IconTrash = () => (
   <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
     <polyline points="2,3.5 12,3.5"/>
@@ -121,57 +128,78 @@ export default function Finance({ onBack }) {
     <>
       <div className={styles.optionSelectorRow}>
         <div className={styles.goalTabs}>
-          {store.options.map(o => (
-            <button 
-              key={o.id} 
-              className={`${styles.goalTab} ${activeOptionId === o.id ? styles.goalTabActive : ''}`}
-              onClick={() => {
-                setActiveOptionId(o.id);
-                setActiveAction(null);
-              }}
-            >
-              {o.name}
-            </button>
-          ))}
           {!isAddingOption ? (
             <button className={styles.goalTabAdd} onClick={() => setIsAddingOption(true)}>
-              + Add option
+              + New
             </button>
           ) : (
-            <input 
-              ref={newGoalRef}
-              type="text"
-              className={styles.newGoalInput}
-              placeholder="Option name..."
-              value={newOptionName}
-              onChange={e => setNewOptionName(e.target.value)}
-              onKeyDown={e => {
-                if (e.key === 'Enter') {
-                  e.preventDefault();
+            <div className={styles.goalTabWrapper}>
+              <input 
+                ref={newGoalRef}
+                type="text"
+                className={styles.newGoalInput}
+                placeholder="Name..."
+                value={newOptionName}
+                onChange={e => setNewOptionName(e.target.value)}
+                onKeyDown={e => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                    if (newOptionName.trim()) {
+                      const id = store.addOption(newOptionName);
+                      if (id) setActiveOptionId(id);
+                      setIsAddingOption(false);
+                      setNewOptionName('');
+                    }
+                  }
+                  if (e.key === 'Escape') setIsAddingOption(false);
+                }}
+                onBlur={() => {
                   if (newOptionName.trim()) {
                     const id = store.addOption(newOptionName);
                     if (id) setActiveOptionId(id);
-                    setIsAddingOption(false);
-                    setNewOptionName('');
                   }
-                }
-                if (e.key === 'Escape') setIsAddingOption(false);
-              }}
-              onBlur={() => {
-                if (newOptionName.trim()) {
-                  const id = store.addOption(newOptionName);
-                  if (id) setActiveOptionId(id);
-                }
-                setIsAddingOption(false);
-                setNewOptionName('');
-              }}
-            />
+                  setIsAddingOption(false);
+                  setNewOptionName('');
+                }}
+              />
+            </div>
           )}
+          {store.options.map(o => (
+            <div key={o.id} className={styles.goalTabWrapper}>
+              <button 
+                className={`${styles.goalTab} ${activeOptionId === o.id ? styles.goalTabActive : ''}`}
+                onClick={() => {
+                  setActiveOptionId(o.id);
+                  setActiveAction(null);
+                }}
+              >
+                {o.name}
+              </button>
+              {o.id !== 'general' && o.id !== 'savings' && (
+                <button 
+                  className={styles.goalTabDelete}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    if (window.confirm(`Delete "${o.name}" and all its transactions?`)) {
+                      store.deleteOption(o.id);
+                      if (activeOptionId === o.id) setActiveOptionId('general');
+                    }
+                  }}
+                  title={`Delete ${o.name}`}
+                >
+                  <IconX />
+                </button>
+              )}
+            </div>
+          ))}
         </div>
       </div>
 
       {/* Balance hero */}
       <div className={styles.balanceHero}>
+        <div className={styles.activeOptionName}>
+          {store.options.find(o => o.id === activeOptionId)?.name || 'General'}
+        </div>
         <div className={styles.balanceLabel}>Current balance</div>
         <div className={`${styles.balanceAmount} ${isNeg ? styles.negative : ''}`}>
           <span className={styles.balanceCurrency}>₱</span>
@@ -207,6 +235,23 @@ export default function Finance({ onBack }) {
         ))}
       </div>
 
+      {/* Insight card — only when input panel is closed */}
+      {!activeAction && (
+        <div className={`${styles.insightCard} ${isNeg ? styles.negative : ''}`}>
+          <div className={styles.insightLabel}>{isNeg ? 'In the red' : 'Net position'}</div>
+          <div className={styles.insightValue}>
+            {isNeg ? '−' : '+'}₱{fmt(Math.abs(store.balance))}
+          </div>
+          <div className={styles.insightNote}>
+            {isNeg
+              ? `Spending exceeds income by ₱${fmt(Math.abs(store.balance))}`
+              : store.totalIn === 0
+                ? 'Start by logging your first income'
+                : `You’ve kept ₱${fmt(store.balance)} of ₱${fmt(store.totalIn)} earned`
+            }
+          </div>
+        </div>
+      )}
       {/* Input panel */}
       {activeAction && cfg && (
         <div className={styles.inputPanel}>
@@ -262,7 +307,11 @@ export default function Finance({ onBack }) {
 
       {store.transactions.length === 0 ? (
         <div className={styles.txEmpty}>
-          No transactions yet — add one above.
+          <div className={styles.txEmptyIcon}>
+            <IconIn />
+          </div>
+          <div className={styles.txEmptyText}>No transactions yet</div>
+          <div className={styles.txEmptyHint}>Use the panel on the left to log income or expenses.</div>
         </div>
       ) : (
         <div className={styles.txList}>
