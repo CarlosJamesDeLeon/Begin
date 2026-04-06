@@ -126,8 +126,16 @@
   height: 6px;
   border-radius: 50%;
 }
+.pillIn    { background: rgba(93, 170, 136, 0.1); color: #5DAA88; }
 .pillIn    .pillDot { background: #5DAA88; }
-.pillSaved .pillDot { background: #6B7FD4; }
+
+.pillOut {
+  background: rgba(212, 115, 107, 0.1);
+  color: #D4736B;
+}
+.pillOut .pillDot {
+  background: #D4736B;
+}
 
 /* ── Action buttons ── */
 .actionRow {
@@ -222,6 +230,61 @@
 .colorIn    { color: #5DAA88; }
 .colorOut   { color: #D4736B; }
 .colorSaved { color: #6B7FD4; }
+
+/* Goals selector */
+.optionSelectorRow {
+  display: flex;
+  margin-bottom: 24px;
+  overflow-x: auto;
+  padding-bottom: 8px; /* For scrollbar breathing room */
+  scrollbar-width: thin;
+}
+
+.goalTabs {
+  display: inline-flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.goalTab, .goalTabAdd {
+  padding: 6px 12px;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 500;
+  white-space: nowrap;
+  cursor: pointer;
+  border: 1px solid #ECEAE6;
+  background: #FAFAF8;
+  color: #1A1A1A;
+  transition: all 0.15s ease;
+  font-family: inherit;
+}
+
+.goalTab:hover, .goalTabAdd:hover {
+  background: #F5F2EE;
+}
+
+.goalTabAdd {
+  color: #C0BBB4;
+  border-style: dashed;
+}
+
+.goalTabActive {
+  background: #EEF0FB;
+  border-color: #6B7FD4;
+  color: #6B7FD4;
+}
+
+.newGoalInput {
+  padding: 5px 12px;
+  border-radius: 12px;
+  font-size: 13px;
+  border: 1px solid #6B7FD4;
+  background: white;
+  outline: none;
+  font-family: inherit;
+  width: 120px;
+}
 
 .amountRow {
   display: flex;
@@ -364,12 +427,25 @@
 .txDetails { flex: 1; min-width: 0; }
 
 .txNote {
+  display: flex;
+  align-items: center;
   font-size: 14px;
   font-weight: 500;
   color: #1A1A1A;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.txGoalBadge {
+  font-size: 10px;
+  font-weight: 600;
+  color: #6B7FD4;
+  background: #EEF0FB;
+  padding: 2px 6px;
+  border-radius: 4px;
+  margin-left: 8px;
+  flex-shrink: 0;
 }
 
 .txDate {
@@ -395,6 +471,15 @@
 .amtIn    { color: #5DAA88; }
 .amtOut   { color: #D4736B; }
 .amtSaved { color: #6B7FD4; }
+
+.optionSelectorRow::-webkit-scrollbar {
+  height: 4px;
+}
+
+.optionSelectorRow::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 4px;
+}
 
 .txDeleteBtn {
   width: 24px;

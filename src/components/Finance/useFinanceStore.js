@@ -3,13 +3,14 @@ import { useState, useEffect } from 'react';
 const STORAGE_KEY = 'begin_finance';
 
 const defaultState = {
-  balance: 0,
-  totalIn: 0,
-  totalSaved: 0,
   transactions: [],
+  options: [
+    { id: 'general', name: 'General' },
+    { id: 'savings', name: 'General Savings' }
+  ],
 };
 
-export function useFinanceStore() {
+export function useFinanceStore(activeOptionId = 'general') {
   const [data, setData] = useState(() => {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
@@ -23,20 +24,48 @@ export function useFinanceStore() {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
   }, [data]);
 
+  // Backward compatibility: build a safe list of options
+  const safeOptions = data.options || [
+    { id: 'general', name: 'General' },
+    ...((data.goals || [{ id: 'default', name: 'General Savings' }]).map(g => ({
+      id: g.id === 'default' ? 'savings' : g.id,
+      name: g.name
+    })))
+  ];
+
+  function getTransactionOptionId(tx) {
+    if (tx.optionId) return tx.optionId;
+    if (tx.type === 'saved') return tx.goalId === 'default' ? 'savings' : (tx.goalId || 'savings');
+    return 'general';
+  }
+
+  // Compute state dynamically for the active option
+  const activeTransactions = (data.transactions || []).filter(t => getTransactionOptionId(t) === activeOptionId);
+  
+  let balance = 0;
+  let totalIn = 0;
+  let totalOut = 0;
+
+  activeTransactions.forEach(tx => {
+    if (tx.type === 'in' || tx.type === 'saved') {
+      balance += tx.amount;
+      totalIn += tx.amount;
+    } else if (tx.type === 'out') {
+      balance -= tx.amount;
+      totalOut += tx.amount;
+    }
+  });
+
   function addMoney(amount, note) {
     const tx = {
       id: '_' + Math.random().toString(36).slice(2, 9),
       type: 'in',
       amount: parseFloat(amount),
       note: note || 'Income',
+      optionId: activeOptionId,
       date: Date.now(),
     };
-    setData(prev => ({
-      ...prev,
-      balance: prev.balance + tx.amount,
-      totalIn: prev.totalIn + tx.amount,
-      transactions: [tx, ...prev.transactions],
-    }));
+    setData(prev => ({ ...prev, transactions: [tx, ...(prev.transactions || [])] }));
   }
 
   function spendMoney(amount, note) {
@@ -45,52 +74,53 @@ export function useFinanceStore() {
       type: 'out',
       amount: parseFloat(amount),
       note: note || 'Expense',
+      optionId: activeOptionId,
       date: Date.now(),
     };
-    setData(prev => ({
-      ...prev,
-      balance: prev.balance - tx.amount,
-      transactions: [tx, ...prev.transactions],
-    }));
-  }
-
-  function saveMoney(amount, note) {
-    const tx = {
-      id: '_' + Math.random().toString(36).slice(2, 9),
-      type: 'saved',
-      amount: parseFloat(amount),
-      note: note || 'Saved',
-      date: Date.now(),
-    };
-    setData(prev => ({
-      ...prev,
-      balance: prev.balance - tx.amount,
-      totalSaved: prev.totalSaved + tx.amount,
-      transactions: [tx, ...prev.transactions],
-    }));
+    setData(prev => ({ ...prev, transactions: [tx, ...(prev.transactions || [])] }));
   }
 
   function deleteTransaction(id) {
-    const tx = data.transactions.find(t => t.id === id);
-    if (!tx) return;
+    setData(prev => ({
+      ...prev,
+      transactions: (prev.transactions || []).filter(t => t.id !== id),
+    }));
+  }
+
+  function addOption(name) {
+    if (!name.trim()) return null;
+    const newOpt = {
+      id: '_' + Math.random().toString(36).slice(2, 9),
+      name: name.trim(),
+    };
+    
     setData(prev => {
-      let { balance, totalIn, totalSaved } = prev;
-      if (tx.type === 'in')    { balance -= tx.amount; totalIn -= tx.amount; }
-      if (tx.type === 'out')   { balance += tx.amount; }
-      if (tx.type === 'saved') { balance += tx.amount; totalSaved -= tx.amount; }
-      return {
-        ...prev,
-        balance,
-        totalIn,
-        totalSaved,
-        transactions: prev.transactions.filter(t => t.id !== id),
-      };
+      const opts = prev.options || [
+        { id: 'general', name: 'General' },
+        ...((prev.goals || [{ id: 'default', name: 'General Savings' }]).map(g => ({
+          id: g.id === 'default' ? 'savings' : g.id,
+          name: g.name
+        })))
+      ];
+      return { ...prev, options: [...opts, newOpt] };
     });
+    return newOpt.id;
   }
 
   function clearAll() {
-    setData(defaultState);
+    setData(prev => ({ ...defaultState, options: prev.options || defaultState.options }));
   }
 
-  return { ...data, addMoney, spendMoney, saveMoney, deleteTransaction, clearAll };
+  return { 
+    options: safeOptions, 
+    transactions: activeTransactions,
+    balance,
+    totalIn,
+    totalOut,
+    addMoney, 
+    spendMoney, 
+    deleteTransaction, 
+    addOption,
+    clearAll 
+  };
 }

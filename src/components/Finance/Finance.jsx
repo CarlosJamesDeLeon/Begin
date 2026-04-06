@@ -59,18 +59,27 @@ const IconBack = () => (
 const ACTIONS = {
   in:    { label: 'Add Money',  sub: 'income',   Icon: IconIn,    color: 'In',    btnClass: 'btnIn',    confirmClass: 'confirmIn',    placeholder: 'e.g. Allowance, salary…' },
   out:   { label: 'Spent',      sub: 'expense',   Icon: IconOut,   color: 'Out',   btnClass: 'btnOut',   confirmClass: 'confirmOut',   placeholder: 'e.g. Groceries, transport…' },
-  saved: { label: 'Saved',      sub: 'set aside', Icon: IconSaved, color: 'Saved', btnClass: 'btnSaved', confirmClass: 'confirmSaved', placeholder: 'e.g. Emergency fund…' },
 };
 
 /* ════════════════════════════════════
    FINANCE COMPONENT
 ════════════════════════════════════ */
 export default function Finance({ onBack }) {
-  const store = useFinanceStore();
+  const [activeOptionId, setActiveOptionId] = useState('general');
+  const store = useFinanceStore(activeOptionId);
   const [activeAction, setActiveAction] = useState(null);
   const [amount, setAmount]             = useState('');
   const [note, setNote]                 = useState('');
+  const [isAddingOption, setIsAddingOption] = useState(false);
+  const [newOptionName, setNewOptionName] = useState('');
   const amountRef = useRef(null);
+  const newGoalRef = useRef(null);
+
+  useEffect(() => {
+    if (isAddingOption && newGoalRef.current) {
+      newGoalRef.current.focus();
+    }
+  }, [isAddingOption]);
 
   /* focus amount input when panel opens */
   useEffect(() => {
@@ -94,7 +103,6 @@ export default function Finance({ onBack }) {
     if (!val || val <= 0) return;
     if (activeAction === 'in')    store.addMoney(val, note);
     if (activeAction === 'out')   store.spendMoney(val, note);
-    if (activeAction === 'saved') store.saveMoney(val, note);
     setAmount('');
     setNote('');
     setActiveAction(null);
@@ -111,6 +119,57 @@ export default function Finance({ onBack }) {
   /* ── left panel content (shared mobile/desktop) ── */
   const LeftContent = (
     <>
+      <div className={styles.optionSelectorRow}>
+        <div className={styles.goalTabs}>
+          {store.options.map(o => (
+            <button 
+              key={o.id} 
+              className={`${styles.goalTab} ${activeOptionId === o.id ? styles.goalTabActive : ''}`}
+              onClick={() => {
+                setActiveOptionId(o.id);
+                setActiveAction(null);
+              }}
+            >
+              {o.name}
+            </button>
+          ))}
+          {!isAddingOption ? (
+            <button className={styles.goalTabAdd} onClick={() => setIsAddingOption(true)}>
+              + Add option
+            </button>
+          ) : (
+            <input 
+              ref={newGoalRef}
+              type="text"
+              className={styles.newGoalInput}
+              placeholder="Option name..."
+              value={newOptionName}
+              onChange={e => setNewOptionName(e.target.value)}
+              onKeyDown={e => {
+                if (e.key === 'Enter') {
+                  e.preventDefault();
+                  if (newOptionName.trim()) {
+                    const id = store.addOption(newOptionName);
+                    if (id) setActiveOptionId(id);
+                    setIsAddingOption(false);
+                    setNewOptionName('');
+                  }
+                }
+                if (e.key === 'Escape') setIsAddingOption(false);
+              }}
+              onBlur={() => {
+                if (newOptionName.trim()) {
+                  const id = store.addOption(newOptionName);
+                  if (id) setActiveOptionId(id);
+                }
+                setIsAddingOption(false);
+                setNewOptionName('');
+              }}
+            />
+          )}
+        </div>
+      </div>
+
       {/* Balance hero */}
       <div className={styles.balanceHero}>
         <div className={styles.balanceLabel}>Current balance</div>
@@ -124,9 +183,9 @@ export default function Finance({ onBack }) {
             <span className={styles.pillDot}></span>
             ₱{fmt(store.totalIn)} in
           </div>
-          <div className={`${styles.summaryPill} ${styles.pillSaved}`}>
+          <div className={`${styles.summaryPill} ${styles.pillOut}`}>
             <span className={styles.pillDot}></span>
-            ₱{fmt(store.totalSaved)} saved
+            ₱{fmt(store.totalOut)} out
           </div>
         </div>
       </div>
@@ -208,25 +267,26 @@ export default function Finance({ onBack }) {
       ) : (
         <div className={styles.txList}>
           {store.transactions.map((tx, i) => {
-            const isIn    = tx.type === 'in';
-            const isSaved = tx.type === 'saved';
+            const isIn = tx.type === 'in' || tx.type === 'saved'; // legacy 'saved' fallback
             return (
               <div
                 key={tx.id}
                 className={styles.txItem}
                 style={{ animationDelay: `${i * 30}ms` }}
               >
-                <div className={`${styles.txTypeIcon} ${styles[`iconBg${tx.type === 'in' ? 'In' : tx.type === 'out' ? 'Out' : 'Saved'}`]}`}>
-                  {isIn ? <IconIn /> : isSaved ? <IconSaved /> : <IconOut />}
+                <div className={`${styles.txTypeIcon} ${styles[`iconBg${isIn ? 'In' : 'Out'}`]}`}>
+                  {isIn ? <IconIn /> : <IconOut />}
                 </div>
 
                 <div className={styles.txDetails}>
-                  <div className={styles.txNote}>{tx.note}</div>
+                  <div className={styles.txNote}>
+                    {tx.note}
+                  </div>
                   <div className={styles.txDate}>{relativeDate(tx.date)}</div>
                 </div>
 
                 <div className={styles.txRight}>
-                  <div className={`${styles.txAmount} ${styles[`amt${isIn ? 'In' : isSaved ? 'Saved' : 'Out'}`]}`}>
+                  <div className={`${styles.txAmount} ${styles[`amt${isIn ? 'In' : 'Out'}`]}`}>
                     {isIn ? '+' : '−'}₱{fmt(tx.amount)}
                   </div>
                   <button
