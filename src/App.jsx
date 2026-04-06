@@ -5,6 +5,7 @@ import NotebookList from './components/NotebookList'
 import NoteList from './components/NoteList'
 import NoteEditor from './components/NoteEditor'
 import Finance from './components/Finance'
+import Study from './components/Study'
 
 function App() {
   const [currentView, setCurrentView] = useState('dashboard');
@@ -46,6 +47,9 @@ function App() {
       )}
       {currentView === 'finance' && (
         <Finance onBack={() => navigate('dashboard')} />
+      )}
+      {currentView === 'study' && (
+        <Study onBack={() => navigate('dashboard')} />
       )}
     </>
   );

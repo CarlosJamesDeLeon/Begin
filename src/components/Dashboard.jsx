@@ -76,7 +76,7 @@ const Dashboard = ({ store, navigate }) => {
           </svg>
           <span>Finance</span>
         </button>
-        <button className="mobile-tab">
+        <button className="mobile-tab" onClick={() => navigate('study')}>
           <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
             <circle cx="9" cy="9" r="6" /><polyline points="9,6.5 9,9 11,10.5" />
           </svg>
@@ -123,7 +123,7 @@ const Dashboard = ({ store, navigate }) => {
               <line x1="2" y1="8" x2="16" y2="8" /><line x1="4.5" y1="11.5" x2="7" y2="11.5" />
             </svg>
           </button>
-          <button className="sidebar-btn" title="Study">
+          <button className="sidebar-btn" title="Study" onClick={() => navigate('study')}>
             <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
               <circle cx="9" cy="9" r="6" /><polyline points="9,6.5 9,9 11,10.5" />
             </svg>
