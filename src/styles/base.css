@@ -117,9 +117,15 @@ input, textarea {
 .back-btn:hover { background: var(--border); }
 
 .view-body {
-  padding: 18px 18px 80px;
-  max-width: 680px;
-  margin: 0 auto;
+  padding: 18px 24px 80px;
+  max-width: 1000px;
+  margin: 0;
+}
+
+@media (min-width: 720px) {
+  .view-body {
+    padding: 40px 5% 100px;
+  }
 }
 
 .add-dashed-btn {
