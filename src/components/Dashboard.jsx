@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import ThemeToggle from './ThemeToggle';
+import ThemeToggle from './ThemeToggle/ThemeToggle';
 
 const Dashboard = ({ store, navigate, dark, toggleTheme }) => {
   const [time, setTime] = useState(new Date());
