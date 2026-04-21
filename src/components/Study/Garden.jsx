@@ -1,10 +1,8 @@
 import Flower from './Flower';
 import styles from './Study.module.css';
 
-const SESSION_GOAL = 4;
-
-export default function Garden({ garden, todaySessions, activeSession, nextFlower }) {
-  const slots = Array.from({ length: SESSION_GOAL });
+export default function Garden({ garden, todaySessions, activeSession, nextFlower, totalSess = 4 }) {
+  const slots = Array.from({ length: totalSess });
 
   return (
     <div className={styles.gardenPlot}>
@@ -39,9 +37,9 @@ export default function Garden({ garden, todaySessions, activeSession, nextFlowe
       <div className={styles.gardenMood}>
         {todaySessions === 0 && !activeSession && 'Start a session to grow your first flower'}
         {todaySessions === 0 && activeSession && 'Your first flower is growing… keep going!'}
-        {todaySessions > 0 && todaySessions < SESSION_GOAL && !activeSession && `${todaySessions} flower${todaySessions > 1 ? 's' : ''} bloomed · keep planting`}
-        {todaySessions > 0 && todaySessions < SESSION_GOAL && activeSession && 'Growing… stay focused!'}
-        {todaySessions >= SESSION_GOAL && 'Your garden is in full bloom today ✦'}
+        {todaySessions > 0 && todaySessions < totalSess && !activeSession && `${todaySessions} flower${todaySessions > 1 ? 's' : ''} bloomed · keep planting`}
+        {todaySessions > 0 && todaySessions < totalSess && activeSession && 'Growing… stay focused!'}
+        {todaySessions >= totalSess && 'Your garden is in full bloom today ✦'}
       </div>
     </div>
   );
