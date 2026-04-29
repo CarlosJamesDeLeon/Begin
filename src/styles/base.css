@@ -1,14 +1,14 @@
 /* ── LIGHT MODE TOKENS ── */
 :root {
-  --bg: #FAFAF8;
-  --bg-off: #F5F2EE;
-  --bg-sink: #EDEAE5;
+  --bg: #F7F8FA;
+  --bg-off: #EDEEF1;
+  --bg-sink: #E2E4E8;
   --bg-card: #FFFFFF;
-  --border: #ECEAE6;
-  --border-md: #DAD7D1;
+  --border: #E8E9EC;
+  --border-md: #D3D5DA;
   --text-1: #1A1A1A;
   --text-2: #888880;
-  --text-3: #C0BBB4;
+  --text-3: #BBBDC2;
 
   --font-body: 'DM Sans', system-ui, sans-serif;
   --font-serif: 'Lora', Georgia, serif;
