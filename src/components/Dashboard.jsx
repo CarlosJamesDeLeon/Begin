@@ -3,6 +3,7 @@ import ThemeToggle from './ThemeToggle/ThemeToggle';
 
 const Dashboard = ({ store, navigate, dark, toggleTheme }) => {
   const [time, setTime] = useState(new Date());
+  const [goalsExpanded, setGoalsExpanded] = useState(false);
 
   useEffect(() => {
     const timer = setInterval(() => setTime(new Date()), 30000);
@@ -144,12 +145,34 @@ const Dashboard = ({ store, navigate, dark, toggleTheme }) => {
 
           <div className="sidebar-section">
             <div className="sidebar-section-title">MODULES</div>
-            {navButtons.map(btn => (
-              <button key={btn.view} className="sidebar-nav-item" onClick={() => navigate(btn.view)}>
-                <span className="sidebar-icon">{btn.icon}</span>
-                <span className="sidebar-label">{btn.title}</span>
-              </button>
-            ))}
+            {navButtons.map(btn => {
+              if (btn.view === 'goals') {
+                return (
+                  <div key={btn.view}>
+                    <button className="sidebar-nav-item" onClick={() => setGoalsExpanded(!goalsExpanded)}>
+                      <span className="sidebar-icon">{btn.icon}</span>
+                      <span className="sidebar-label">{btn.title}</span>
+                      <span style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', opacity: 0.5, transform: goalsExpanded ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }}>
+                        <svg width="10" height="6" viewBox="0 0 10 6" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="1,1 5,5 9,1"/></svg>
+                      </span>
+                    </button>
+                    {goalsExpanded && (
+                      <div className="sidebar-sub-nav">
+                        <button className="sidebar-sub-item" onClick={() => navigate('goals', { initialTab: 'todo' })}>To-Do List</button>
+                        <button className="sidebar-sub-item" onClick={() => navigate('goals', { initialTab: 'gpa' })}>GPA Tracker</button>
+                        <button className="sidebar-sub-item" onClick={() => navigate('goals', { initialTab: 'vision' })}>Vision Board</button>
+                      </div>
+                    )}
+                  </div>
+                );
+              }
+              return (
+                <button key={btn.view} className="sidebar-nav-item" onClick={() => navigate(btn.view)}>
+                  <span className="sidebar-icon">{btn.icon}</span>
+                  <span className="sidebar-label">{btn.title}</span>
+                </button>
+              );
+            })}
           </div>
 
           <div className="sidebar-section">

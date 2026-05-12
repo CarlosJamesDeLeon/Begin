@@ -1,0 +1,419 @@
+/* Goals.module.css */
+
+.page {
+  min-height: 100vh;
+  background: var(--bg);
+  font-family: 'DM Sans', system-ui, sans-serif;
+  padding-bottom: 80px;
+  transition: background 0.25s ease;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Header ── */
+.header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 18px 24px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg);
+  position: sticky;
+  top: 0;
+  z-index: 20;
+}
+
+.headerLeft {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.backBtn {
+  width: 32px;
+  height: 32px;
+  border-radius: 9px;
+  background: var(--bg-off);
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.15s;
+  flex-shrink: 0;
+}
+
+.backBtn:hover {
+  background: var(--border);
+}
+
+.backBtn svg {
+  width: 13px;
+  height: 13px;
+  stroke: var(--text-2);
+  fill: none;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.headerTitle {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text-1);
+  letter-spacing: -0.3px;
+}
+
+/* ── Navigation Tabs ── */
+.tabs {
+  display: flex;
+  gap: 8px;
+  background: var(--bg-off);
+  padding: 4px;
+  border-radius: 10px;
+  margin-left: auto;
+}
+
+.tabBtn {
+  background: transparent;
+  border: none;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-3);
+  padding: 6px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: color 0.15s, background 0.15s;
+}
+
+.tabBtn:hover {
+  color: var(--text-2);
+}
+
+.tabBtn.active {
+  background: var(--bg-card);
+  color: var(--text-1);
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+/* ── Main Content Area ── */
+.content {
+  flex: 1;
+  padding: 24px;
+  max-width: 1000px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+/* ── Generic Forms & Cards ── */
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.cardTitle {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-1);
+  margin-bottom: 16px;
+}
+
+.inputGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.inputRow {
+  display: flex;
+  gap: 12px;
+}
+
+.input {
+  flex: 1;
+  background: var(--bg-off);
+  border: 1px solid var(--border);
+  color: var(--text-1);
+  padding: 10px 14px;
+  border-radius: 10px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.input:focus {
+  border-color: var(--text-2);
+}
+
+.btn {
+  background: var(--text-1);
+  color: var(--bg);
+  border: none;
+  padding: 10px 16px;
+  border-radius: 10px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.btn:hover {
+  opacity: 0.9;
+}
+
+/* ── GPA Tracker ── */
+.gpaHero {
+  text-align: center;
+  padding: 20px 0 30px;
+}
+
+.gpaLabel {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--text-3);
+  margin-bottom: 8px;
+}
+
+.gpaValue {
+  font-family: 'Lora', Georgia, serif;
+  font-size: 64px;
+  font-weight: 500;
+  color: var(--text-1);
+  line-height: 1;
+}
+
+.courseList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.courseItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background: var(--bg-off);
+  border-radius: 12px;
+  border: 1px solid var(--border);
+}
+
+.courseName {
+  font-weight: 500;
+  color: var(--text-1);
+}
+
+.courseMeta {
+  font-size: 12px;
+  color: var(--text-3);
+}
+
+.courseGrade {
+  font-family: 'DM Mono', monospace;
+  font-weight: 600;
+  font-size: 16px;
+  color: var(--text-1);
+  background: var(--bg-card);
+  padding: 4px 10px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+}
+
+.deleteBtn {
+  background: none;
+  border: none;
+  color: var(--text-3);
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 6px;
+}
+
+.deleteBtn:hover {
+  color: var(--color-danger);
+  background: var(--color-danger-bg);
+}
+
+.deleteBtn svg {
+  width: 14px;
+  height: 14px;
+}
+
+/* ── Todo List ── */
+.taskList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.taskItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  background: var(--bg-off);
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  transition: opacity 0.2s;
+}
+
+.taskItem.completed {
+  opacity: 0.6;
+}
+
+.taskItem.completed .taskTitle {
+  text-decoration: line-through;
+  color: var(--text-3);
+}
+
+.taskCheckbox {
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border: 2px solid var(--text-3);
+  border-radius: 4px;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.2s;
+}
+
+.taskCheckbox:checked {
+  background: var(--text-1);
+  border-color: var(--text-1);
+}
+
+.taskCheckbox:checked::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 5px;
+  width: 4px;
+  height: 8px;
+  border: solid var(--bg);
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+.taskContent {
+  flex: 1;
+}
+
+.taskTitle {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-1);
+  margin-bottom: 2px;
+}
+
+.taskMeta {
+  display: flex;
+  gap: 10px;
+  font-size: 11px;
+  color: var(--text-3);
+}
+
+.priority {
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 9px;
+  letter-spacing: 0.5px;
+}
+
+.priorityHigh { background: #FDF0EE; color: #D4736B; }
+.priorityMed { background: #FFF4E5; color: #E2A98B; }
+.priorityLow { background: #EAF3EE; color: #5DAA88; }
+
+/* ── Vision Board ── */
+.visionGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+.visionCard {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.visionImg {
+  width: 100%;
+  height: 160px;
+  object-fit: cover;
+  background: var(--bg-off);
+}
+
+.visionImgPlaceholder {
+  width: 100%;
+  height: 160px;
+  background: var(--bg-off);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-3);
+  font-size: 12px;
+}
+
+.visionContent {
+  padding: 16px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.visionTitle {
+  font-family: 'Lora', serif;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text-1);
+  margin-bottom: 6px;
+}
+
+.visionDesc {
+  font-size: 13px;
+  color: var(--text-2);
+  margin-bottom: 16px;
+  flex: 1;
+}
+
+.visionFooter {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: auto;
+  border-top: 1px solid var(--border);
+  padding-top: 12px;
+}
+
+.visionStatus {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-3);
+}
+
+@media (max-width: 600px) {
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .tabs {
+    margin-left: 0;
+    width: 100%;
+    overflow-x: auto;
+  }
+}

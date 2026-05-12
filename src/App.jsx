@@ -8,11 +8,13 @@ import NoteList from './components/NoteList';
 import NoteEditor from './components/NoteEditor';
 import Finance from './components/Finance';
 import Study from './components/Study';
+import Goals from './components/Goals/Goals';
 
 function App() {
   const [currentView, setCurrentView] = useState('dashboard');
   const [activeNotebookId, setActiveNotebookId] = useState(null);
   const [activeNoteId, setActiveNoteId] = useState(null);
+  const [goalsTab, setGoalsTab] = useState('todo');
 
   const store = useStore();
   const { dark, toggle: toggleTheme } = useTheme();
@@ -22,6 +24,7 @@ function App() {
   const navigate = (viewId, params = {}) => {
     if (params.notebookId) setActiveNotebookId(params.notebookId);
     if (params.noteId) setActiveNoteId(params.noteId);
+    if (params.initialTab) setGoalsTab(params.initialTab);
     setCurrentView(viewId);
   };
 
@@ -49,6 +52,9 @@ function App() {
       )}
       {currentView === 'study' && (
         <Study onBack={() => navigate('dashboard')} />
+      )}
+      {currentView === 'goals' && (
+        <Goals onBack={() => navigate('dashboard')} initialTab={goalsTab} />
       )}
     </>
   );
