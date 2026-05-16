@@ -1,9 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import ThemeToggle from './ThemeToggle/ThemeToggle';
+import { useFinanceStore } from './Finance/useFinanceStore';
+import { useStudyStore } from './Study/useStudyStore';
+import { usePrefsStore } from './Preferences/usePrefsStore';
 
 const Dashboard = ({ store, navigate, dark, toggleTheme }) => {
   const [time, setTime] = useState(new Date());
   const [goalsExpanded, setGoalsExpanded] = useState(false);
+  
+  const finance = useFinanceStore('general');
+  const financeSavings = useFinanceStore('savings');
+  const study = useStudyStore();
+  const prefs = usePrefsStore();
 
   useEffect(() => {
     const timer = setInterval(() => setTime(new Date()), 30000);
@@ -28,11 +36,14 @@ const Dashboard = ({ store, navigate, dark, toggleTheme }) => {
     <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M3.5 2h9a1.5 1.5 0 011.5 1.5v9a1.5 1.5 0 01-1.5 1.5h-9A1.5 1.5 0 012 12.5v-9A1.5 1.5 0 013.5 2z"/><line x1="6" y1="6" x2="10" y2="6"/><line x1="6" y1="10" x2="10" y2="10"/></svg>,
   ];
 
+  const oneWeekAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
+  const notesThisWeek = store.notes.filter(n => n.updatedAt > oneWeekAgo).length;
+
   const stats = [
-    { val: '₱2,340', label: 'Saved this month', delta: '↑ 12%', cls: 'up', iconCls: 'icon-green', icon: statIcons[0] },
-    { val: '4h 20m', label: 'Studied today', delta: '↑ on track', cls: 'up', iconCls: 'icon-purple', icon: statIcons[1] },
-    { val: '7', label: 'Day streak', delta: '↑ best yet', cls: 'up', iconCls: 'icon-orange', icon: statIcons[2] },
-    { val: '22', label: 'Notes this week', delta: '— steady', cls: 'neutral', iconCls: 'icon-blue', icon: statIcons[3] },
+    { val: `₱${finance.balance.toLocaleString('en-PH', { minimumFractionDigits: 2 })}`, label: 'General Balance', delta: finance.balance >= 0 ? '↑ on track' : '↓ low', cls: finance.balance >= 0 ? 'up' : 'down', iconCls: 'icon-green', icon: statIcons[0] },
+    { val: study.fmtMinutes(study.todayMinutes) || '0m', label: 'Studied today', delta: study.todayMinutes > 0 ? '↑ growing' : '— resting', cls: study.todayMinutes > 0 ? 'up' : 'neutral', iconCls: 'icon-purple', icon: statIcons[1] },
+    { val: study.streak.toString(), label: 'Day streak', delta: study.streak > 0 ? '🔥 active' : '—', cls: study.streak > 0 ? 'up' : 'neutral', iconCls: 'icon-orange', icon: statIcons[2] },
+    { val: notesThisWeek.toString(), label: 'Notes this week', delta: notesThisWeek > 0 ? '↑ productive' : '— steady', cls: notesThisWeek > 0 ? 'up' : 'neutral', iconCls: 'icon-blue', icon: statIcons[3] },
   ];
 
   const recentItems = store.getRecent(5);
@@ -186,9 +197,11 @@ const Dashboard = ({ store, navigate, dark, toggleTheme }) => {
 
         <div className="sidebar-profile">
           <div className="profile-info-wrap">
-            <div className="profile-avatar">C</div>
+            <div className="profile-avatar" style={{ background: prefs.avatarColor }}>
+              {(prefs.name || 'You').charAt(0).toUpperCase()}
+            </div>
             <div className="profile-info">
-              <span className="profile-name">Carssss</span>
+              <span className="profile-name">{prefs.name || 'You'}</span>
               <span className="profile-role">Student</span>
             </div>
           </div>
@@ -257,35 +270,35 @@ const Dashboard = ({ store, navigate, dark, toggleTheme }) => {
           <div className="right-col">
             <div className="widget-section">
               <div className="section-label">TODAY'S STUDY</div>
-              <div className="d-widget-card today-study-widget">
+              <div className="d-widget-card today-study-widget" onClick={() => navigate('study')} style={{ cursor: 'pointer' }}>
                 <div className="ts-header">
                   <div className="ts-label">Focus blocks completed</div>
-                  <div className="ts-val">4h 20m</div>
+                  <div className="ts-val">{study.fmtMinutes(study.todayMinutes) || '0m'}</div>
                 </div>
                 <div className="ts-blocks">
                   {[...Array(8)].map((_, i) => (
-                    <div key={i} className={`ts-block ${i < 4 ? 'filled' : 'empty'}`} />
+                    <div key={i} className={`ts-block ${i < study.todaySessions ? 'filled' : 'empty'}`} />
                   ))}
                 </div>
               </div>
             </div>
 
             <div className="widget-section">
-              <div className="section-label">FINANCE — ANNIVERSARY</div>
-              <div className="d-widget-card finance-widget">
-                <div className="fw-balance">₱590.00</div>
-                <div className="fw-balance-label">Current balance</div>
+              <div className="section-label">FINANCE — SAVINGS</div>
+              <div className="d-widget-card finance-widget" onClick={() => navigate('finance')} style={{ cursor: 'pointer' }}>
+                <div className="fw-balance">₱{financeSavings.balance.toLocaleString('en-PH', { minimumFractionDigits: 2 })}</div>
+                <div className="fw-balance-label">Current savings balance</div>
                 <div className="fw-progress">
-                  <div className="fw-progress-fill" style={{ width: '85%' }}></div>
+                  <div className="fw-progress-fill" style={{ width: `${Math.min(100, (financeSavings.balance / 10000) * 100)}%` }}></div>
                 </div>
                 <div className="fw-breakdown">
                   <div className="fw-row">
-                    <span className="fw-row-label">Income</span>
-                    <span className="fw-row-val in">+₱690.00</span>
+                    <span className="fw-row-label">Saved</span>
+                    <span className="fw-row-val in">+₱{financeSavings.totalIn.toLocaleString('en-PH', { minimumFractionDigits: 2 })}</span>
                   </div>
                   <div className="fw-row">
-                    <span className="fw-row-label">Expense</span>
-                    <span className="fw-row-val out">−₱100.00</span>
+                    <span className="fw-row-label">Withdrawn</span>
+                    <span className="fw-row-val out">−₱{financeSavings.totalOut.toLocaleString('en-PH', { minimumFractionDigits: 2 })}</span>
                   </div>
                 </div>
               </div>

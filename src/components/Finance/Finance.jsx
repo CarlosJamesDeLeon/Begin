@@ -1,10 +1,11 @@
 import { useState, useRef, useEffect } from 'react';
 import styles from './Finance.module.css';
 import { useFinanceStore } from './useFinanceStore';
+import { usePrefsStore } from '../Preferences/usePrefsStore';
 
 /* ── tiny helpers ── */
-function fmt(n) {
-  return Math.abs(n).toLocaleString('en-PH', {
+function fmt(n, locale = 'en-PH') {
+  return Math.abs(n).toLocaleString(locale, {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   });
@@ -74,6 +75,9 @@ const ACTIONS = {
 export default function Finance({ onBack }) {
   const [activeOptionId, setActiveOptionId] = useState('general');
   const store = useFinanceStore(activeOptionId);
+  const prefs = usePrefsStore();
+  const CUR = prefs.currency;
+  const LOC = prefs.currencyLocale;
   const [activeAction, setActiveAction] = useState(null);
   const [amount, setAmount]             = useState('');
   const [note, setNote]                 = useState('');
@@ -122,6 +126,7 @@ export default function Finance({ onBack }) {
 
   const cfg = activeAction ? ACTIONS[activeAction] : null;
   const isNeg = store.balance < 0;
+  const fmtC = (n) => fmt(n, LOC);
 
   /* ── left panel content (shared mobile/desktop) ── */
   const LeftContent = (
@@ -201,19 +206,19 @@ export default function Finance({ onBack }) {
           {store.options.find(o => o.id === activeOptionId)?.name || 'General'}
         </div>
         <div className={styles.balanceLabel}>Current balance</div>
-        <div className={`${styles.balanceAmount} ${isNeg ? styles.negative : ''}`}>
-          <span className={styles.balanceCurrency}>₱</span>
-          {fmt(store.balance)}
+        <div className={styles.balanceAmount} className={`${styles.balanceAmount} ${isNeg ? styles.negative : ''}`}>
+          <span className={styles.balanceCurrency}>{CUR}</span>
+          {fmtC(store.balance)}
         </div>
 
         <div className={styles.summaryRow}>
           <div className={`${styles.summaryPill} ${styles.pillIn}`}>
             <span className={styles.pillDot}></span>
-            ₱{fmt(store.totalIn)} in
+            {CUR}{fmtC(store.totalIn)} in
           </div>
           <div className={`${styles.summaryPill} ${styles.pillOut}`}>
             <span className={styles.pillDot}></span>
-            ₱{fmt(store.totalOut)} out
+            {CUR}{fmtC(store.totalOut)} out
           </div>
         </div>
       </div>
@@ -240,14 +245,14 @@ export default function Finance({ onBack }) {
         <div className={`${styles.insightCard} ${isNeg ? styles.negative : ''}`}>
           <div className={styles.insightLabel}>{isNeg ? 'In the red' : 'Net position'}</div>
           <div className={styles.insightValue}>
-            {isNeg ? '−' : '+'}₱{fmt(Math.abs(store.balance))}
+            {isNeg ? '−' : '+'}{CUR}{fmtC(Math.abs(store.balance))}
           </div>
           <div className={styles.insightNote}>
             {isNeg
-              ? `Spending exceeds income by ₱${fmt(Math.abs(store.balance))}`
+              ? `Spending exceeds income by ${CUR}${fmtC(Math.abs(store.balance))}`
               : store.totalIn === 0
                 ? 'Start by logging your first income'
-                : `You’ve kept ₱${fmt(store.balance)} of ₱${fmt(store.totalIn)} earned`
+                : `You’ve kept ${CUR}${fmtC(store.balance)} of ${CUR}${fmtC(store.totalIn)} earned`
             }
           </div>
         </div>
@@ -261,7 +266,7 @@ export default function Finance({ onBack }) {
             </div>
 
             <div className={styles.amountRow}>
-              <span className={styles.pesoSign}>₱</span>
+              <span className={styles.pesoSign}>{CUR}</span>
               <input
                 ref={amountRef}
                 type="number"
@@ -336,7 +341,7 @@ export default function Finance({ onBack }) {
 
                 <div className={styles.txRight}>
                   <div className={`${styles.txAmount} ${styles[`amt${isIn ? 'In' : 'Out'}`]}`}>
-                    {isIn ? '+' : '−'}₱{fmt(tx.amount)}
+                    {isIn ? '+' : '−'}{CUR}{fmtC(tx.amount)}
                   </div>
                   <button
                     className={styles.txDeleteBtn}

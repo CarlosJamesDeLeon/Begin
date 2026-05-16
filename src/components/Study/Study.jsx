@@ -31,7 +31,7 @@ function makePetals() {
 }
 const PETALS = makePetals();
 
-export default function Study({ onBack }) {
+export default function Study({ onBack, globalStore }) {
   const store = useStudyStore();
 
   const [technique, setTechnique]           = useState(TECHNIQUES[0]);
@@ -90,6 +90,22 @@ export default function Study({ onBack }) {
     if (phase === 'focus') {
       const flower = store.completeSession(focusMins);
       setLastFlower(flower);
+
+      if (globalStore) {
+        let studyNb = globalStore.notebooks.find(n => n.name === 'Study Logs');
+        if (!studyNb) {
+          studyNb = { id: globalStore.uid(), name: 'Study Logs', color: '#5DAA88', createdAt: Date.now() };
+          globalStore.saveNotebook(studyNb);
+        }
+        globalStore.saveNote({
+          id: globalStore.uid(),
+          notebookId: studyNb.id,
+          title: `Focus Session: ${flower.name}`,
+          content: `Completed a ${focusMins}-minute focus session.\n\nTechnique: ${technique.name}\nGrew a ${flower.name}! 🌸`,
+          updatedAt: Date.now()
+        });
+      }
+
       const nextSess = sessionNum + 1;
       if (nextSess >= totalSess) {
         setPhase('done');

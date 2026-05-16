@@ -28,21 +28,21 @@ export function useGoalsStore() {
   const addCourse = (course) => {
     setData(prev => ({
       ...prev,
-      courses: [...prev.courses, { ...course, id: generateId() }]
+      courses: [...(prev.courses || []), { ...course, id: generateId(), createdAt: Date.now() }]
     }));
   };
 
   const updateCourse = (id, updates) => {
     setData(prev => ({
       ...prev,
-      courses: prev.courses.map(c => c.id === id ? { ...c, ...updates } : c)
+      courses: (prev.courses || []).map(c => c.id === id ? { ...c, ...updates } : c)
     }));
   };
 
   const deleteCourse = (id) => {
     setData(prev => ({
       ...prev,
-      courses: prev.courses.filter(c => c.id !== id)
+      courses: (prev.courses || []).filter(c => c.id !== id)
     }));
   };
 
@@ -50,21 +50,38 @@ export function useGoalsStore() {
   const addTask = (task) => {
     setData(prev => ({
       ...prev,
-      tasks: [{ ...task, id: generateId(), completed: false, createdAt: Date.now() }, ...prev.tasks]
+      tasks: [{ ...task, id: generateId(), completed: false, createdAt: Date.now(), completedAt: null }, ...(prev.tasks || [])]
     }));
   };
 
   const updateTask = (id, updates) => {
     setData(prev => ({
       ...prev,
-      tasks: prev.tasks.map(t => t.id === id ? { ...t, ...updates } : t)
+      tasks: (prev.tasks || []).map(t => {
+        if (t.id !== id) return t;
+        const updated = { ...t, ...updates };
+        if (updates.completed !== undefined && updates.completed && !t.completed) {
+          updated.completedAt = Date.now();
+        }
+        if (updates.completed !== undefined && !updates.completed) {
+          updated.completedAt = null;
+        }
+        return updated;
+      })
     }));
   };
 
   const deleteTask = (id) => {
     setData(prev => ({
       ...prev,
-      tasks: prev.tasks.filter(t => t.id !== id)
+      tasks: (prev.tasks || []).filter(t => t.id !== id)
+    }));
+  };
+
+  const clearCompletedTasks = () => {
+    setData(prev => ({
+      ...prev,
+      tasks: (prev.tasks || []).filter(t => !t.completed)
     }));
   };
 
@@ -72,21 +89,27 @@ export function useGoalsStore() {
   const addVisionGoal = (goal) => {
     setData(prev => ({
       ...prev,
-      visionGoals: [{ ...goal, id: generateId(), status: 'Not Started', createdAt: Date.now() }, ...prev.visionGoals]
+      visionGoals: [{
+        ...goal,
+        id: generateId(),
+        status: 'Not Started',
+        progress: 0,
+        createdAt: Date.now()
+      }, ...(prev.visionGoals || [])]
     }));
   };
 
   const updateVisionGoal = (id, updates) => {
     setData(prev => ({
       ...prev,
-      visionGoals: prev.visionGoals.map(g => g.id === id ? { ...g, ...updates } : g)
+      visionGoals: (prev.visionGoals || []).map(g => g.id === id ? { ...g, ...updates } : g)
     }));
   };
 
   const deleteVisionGoal = (id) => {
     setData(prev => ({
       ...prev,
-      visionGoals: prev.visionGoals.filter(g => g.id !== id)
+      visionGoals: (prev.visionGoals || []).filter(g => g.id !== id)
     }));
   };
 
@@ -95,7 +118,8 @@ export function useGoalsStore() {
     tasks: data.tasks || [],
     visionGoals: data.visionGoals || [],
     addCourse, updateCourse, deleteCourse,
-    addTask, updateTask, deleteTask,
-    addVisionGoal, updateVisionGoal, deleteVisionGoal
+    addTask, updateTask, deleteTask, clearCompletedTasks,
+    addVisionGoal, updateVisionGoal, deleteVisionGoal,
+    generateId,
   };
 }

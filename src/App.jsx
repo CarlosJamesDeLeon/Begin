@@ -9,6 +9,7 @@ import NoteEditor from './components/NoteEditor';
 import Finance from './components/Finance';
 import Study from './components/Study';
 import Goals from './components/Goals/Goals';
+import Preferences from './components/Preferences/Preferences';
 
 function App() {
   const [currentView, setCurrentView] = useState('dashboard');
@@ -51,10 +52,13 @@ function App() {
         <Finance onBack={() => navigate('dashboard')} />
       )}
       {currentView === 'study' && (
-        <Study onBack={() => navigate('dashboard')} />
+        <Study onBack={() => navigate('dashboard')} globalStore={store} />
       )}
       {currentView === 'goals' && (
         <Goals onBack={() => navigate('dashboard')} initialTab={goalsTab} />
+      )}
+      {currentView === 'preferences' && (
+        <Preferences onBack={() => navigate('dashboard')} />
       )}
     </>
   );
