@@ -1,7 +1,8 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import styles from './Goals.module.css';
 import { usePrefsStore } from '../Preferences/usePrefsStore';
 
+// ── US letter grade table ──────────────────────────────────────
 const GRADE_POINTS = {
   'A+': 4.0, 'A': 4.0, 'A-': 3.7,
   'B+': 3.3, 'B': 3.0, 'B-': 2.7,
@@ -9,36 +10,52 @@ const GRADE_POINTS = {
   'D+': 1.3, 'D': 1.0, 'F': 0.0,
 };
 
-// Philippine — 1.0 = Excellent (UP, DLSU style)
-const PH_1_GRADE_POINTS = {
-  '1.00': 1.00, '1.25': 1.25, '1.50': 1.50, '1.75': 1.75,
-  '2.00': 2.00, '2.25': 2.25, '2.50': 2.50, '2.75': 2.75,
-  '3.00': 3.00, '4.00': 4.00, '5.00': 5.00,
-};
+function getGradeValue(grade, scale) {
+  if (!grade) return null;
+  if (scale === 'philippine-1' || scale === 'philippine-5') {
+    const n = parseFloat(grade);
+    return isNaN(n) ? null : n;
+  }
+  const upper = grade.trim().toUpperCase();
+  const match = Object.keys(GRADE_POINTS).find(k => k.toUpperCase() === upper);
+  return match !== undefined ? GRADE_POINTS[match] : null;
+}
 
-// Philippine — 5.0 = Excellent (CITU, Ateneo style)
-const PH_5_GRADE_POINTS = {
-  '5.00': 5.00, '4.75': 4.75, '4.50': 4.50, '4.25': 4.25,
-  '4.00': 4.00, '3.75': 3.75, '3.50': 3.50, '3.25': 3.25,
-  '3.00': 3.00, '2.00': 2.00, '1.00': 1.00,
-};
+function isValidGrade(grade, scale) {
+  if (!grade || !grade.trim()) return false;
+  if (scale === 'philippine-1' || scale === 'philippine-5') {
+    const n = parseFloat(grade.trim());
+    return !isNaN(n) && n >= 1.0 && n <= 5.0;
+  }
+  const upper = grade.trim().toUpperCase();
+  return Object.keys(GRADE_POINTS).some(k => k.toUpperCase() === upper);
+}
+
+function normaliseGrade(grade, scale) {
+  if (!grade || !grade.trim()) return '';
+  if (scale === 'philippine-1' || scale === 'philippine-5') {
+    const n = parseFloat(grade.trim());
+    return isNaN(n) ? grade : n.toFixed(2);
+  }
+  const upper = grade.trim().toUpperCase();
+  return Object.keys(GRADE_POINTS).find(k => k.toUpperCase() === upper) || grade;
+}
 
 function gradeColor(grade, scale) {
+  const pts = getGradeValue(grade, scale);
+  if (pts === null) return { color: 'var(--text-3)', bg: 'transparent' };
   if (scale === 'philippine-5') {
-    const pts = PH_5_GRADE_POINTS[grade] ?? 3.0;
     if (pts >= 4.5) return { color: '#5DAA88', bg: 'rgba(93,170,136,0.12)' };
     if (pts >= 3.5) return { color: '#6B7FD4', bg: 'rgba(107,127,212,0.12)' };
     if (pts >= 3.0) return { color: '#E2A95B', bg: 'rgba(226,169,91,0.12)' };
     return { color: '#E05858', bg: 'rgba(224,88,88,0.12)' };
   }
   if (scale === 'philippine-1') {
-    const pts = PH_1_GRADE_POINTS[grade] ?? 3.0;
-    if (pts <= 1.25) return { color: '#5DAA88', bg: 'rgba(93,170,136,0.12)' };
-    if (pts <= 1.75) return { color: '#6B7FD4', bg: 'rgba(107,127,212,0.12)' };
-    if (pts <= 3.00) return { color: '#E2A95B', bg: 'rgba(226,169,91,0.12)' };
+    if (pts <= 1.5) return { color: '#5DAA88', bg: 'rgba(93,170,136,0.12)' };
+    if (pts <= 2.0) return { color: '#6B7FD4', bg: 'rgba(107,127,212,0.12)' };
+    if (pts <= 3.0) return { color: '#E2A95B', bg: 'rgba(226,169,91,0.12)' };
     return { color: '#E05858', bg: 'rgba(224,88,88,0.12)' };
   }
-  const pts = GRADE_POINTS[grade] ?? 0;
   if (pts >= 3.7) return { color: '#5DAA88', bg: 'rgba(93,170,136,0.12)' };
   if (pts >= 3.0) return { color: '#6B7FD4', bg: 'rgba(107,127,212,0.12)' };
   if (pts >= 2.0) return { color: '#E2A95B', bg: 'rgba(226,169,91,0.12)' };
@@ -53,9 +70,9 @@ function gpaColor(gpa, scale) {
     return '#E05858';
   }
   if (scale === 'philippine-1') {
-    if (gpa <= 1.25) return '#5DAA88';
-    if (gpa <= 1.75) return '#6B7FD4';
-    if (gpa <= 3.00) return '#E2A95B';
+    if (gpa <= 1.5) return '#5DAA88';
+    if (gpa <= 2.0) return '#6B7FD4';
+    if (gpa <= 3.0) return '#E2A95B';
     return '#E05858';
   }
   if (gpa >= 3.7) return '#5DAA88';
@@ -66,7 +83,7 @@ function gpaColor(gpa, scale) {
 
 function gpaLabel(gpa, scale) {
   if (scale === 'philippine-5') {
-    if (gpa === 0)   return 'No courses yet';
+    if (gpa === 0)   return 'Add grades below';
     if (gpa >= 4.75) return 'Excellent';
     if (gpa >= 4.0)  return 'Very Good';
     if (gpa >= 3.5)  return 'Good';
@@ -74,7 +91,7 @@ function gpaLabel(gpa, scale) {
     return 'Failed';
   }
   if (scale === 'philippine-1') {
-    if (gpa === 0)   return 'No courses yet';
+    if (gpa === 0)   return 'Add grades below';
     if (gpa <= 1.25) return 'Summa Cum Laude';
     if (gpa <= 1.50) return 'Magna Cum Laude';
     if (gpa <= 1.75) return 'Cum Laude';
@@ -86,243 +103,265 @@ function gpaLabel(gpa, scale) {
   if (gpa >= 3.0) return 'Cum Laude';
   if (gpa >= 2.0) return 'Satisfactory';
   if (gpa > 0)    return 'Needs Improvement';
-  return 'No courses yet';
+  return 'Add grades below';
 }
 
+// ── Main component ────────────────────────────────────────────
 export default function GpaTracker({ store }) {
   const prefs = usePrefsStore();
   const scale  = prefs.gpaScale || '4.0';
   const isPH   = scale === 'philippine-1' || scale === 'philippine-5';
-  const GRADES = scale === 'philippine-1' ? PH_1_GRADE_POINTS
-               : scale === 'philippine-5' ? PH_5_GRADE_POINTS
-               : GRADE_POINTS;
-  const defaultGrade = scale === 'philippine-1' ? '1.00' : scale === 'philippine-5' ? '5.00' : 'A';
-  const [name, setName]       = useState('');
-  const [units, setUnits] = useState('');
-  const [grade, setGrade]     = useState(defaultGrade);
-  const [semester, setSemester] = useState('');
-  const [targetGpa, setTargetGpa]         = useState('');
+
+  // What-if state
+  const [targetGpa, setTargetGpa]     = useState('');
   const [futureUnits, setFutureUnits] = useState('');
-  const [whatIfResult, setWhatIfResult]   = useState(null);
-  const [showForm, setShowForm] = useState(false);
+  const [whatIfResult, setWhatIfResult] = useState(null);
 
-  const handleAdd = (e) => {
-    e.preventDefault();
-    if (!name || !units) return;
-    store.addCourse({ name: name.trim(), units: parseFloat(units), grade, semester: semester.trim() });
-    setName(''); setUnits(''); setGrade(defaultGrade); setSemester('');
-    setShowForm(false);
-  };
-
-  const { gpa, totalUnits, totalPoints } = useMemo(() => {
-    let pts = 0, unitsSum = 0;
+  // ── Computed GWA (only from rows that have a valid grade) ──
+  const { gwa, totalUnits, totalPoints, gradedCount } = useMemo(() => {
+    let pts = 0, u = 0, count = 0;
     store.courses.forEach(c => {
-      pts  += (GRADES[c.grade] ?? 0) * (c.units || c.credits || 0);
-      unitsSum += (c.units || c.credits || 0);
+      const val = getGradeValue(c.grade, scale);
+      if (val !== null) {
+        pts += val * (c.units || 3);
+        u   += (c.units || 3);
+        count++;
+      }
     });
-    return { gpa: unitsSum > 0 ? pts / unitsSum : 0, totalUnits: unitsSum, totalPoints: pts };
+    return { gwa: u > 0 ? pts / u : 0, totalUnits: u, totalPoints: pts, gradedCount: count };
   }, [store.courses, scale]);
 
-  // Group courses by semester
-  const bySemester = useMemo(() => {
-    const map = {};
-    store.courses.forEach(c => {
-      const sem = c.semester || 'Unsorted';
-      if (!map[sem]) map[sem] = [];
-      map[sem].push(c);
-    });
-    return map;
-  }, [store.courses]);
+  // ── Add a new empty subject ────────────────────────────────
+  const addSubject = () => {
+    const num = store.courses.length + 1;
+    store.addCourse({ name: `Subject ${num}`, units: 3, grade: '' });
+  };
 
+  // ── What-if ───────────────────────────────────────────────
   const calcWhatIf = () => {
     const tgt = parseFloat(targetGpa);
     const fut = parseFloat(futureUnits);
-    if (!tgt || !fut) return;
-    if (isPH && (tgt < 1.0 || tgt > 5.0)) return;
-    if (!isPH && (tgt < 0 || tgt > 4.0)) return;
-    const neededTotal  = tgt * (totalUnits + fut);
-    const neededFuture = neededTotal - totalPoints;
-    const avg          = neededFuture / fut;
+    if (!tgt || !fut || fut <= 0) return;
+    if (isPH  && (tgt < 1.0 || tgt > 5.0)) return;
+    if (!isPH && (tgt < 0   || tgt > 4.0)) return;
+
+    const neededFuture = tgt * (totalUnits + fut) - totalPoints;
+    const avg = neededFuture / fut;
+
     let letter;
     if (scale === 'philippine-5') {
-      letter = avg >= 4.75 ? '5.00 (Excellent)' : avg >= 4.0 ? '4.00–4.75 (Very Good)' : avg >= 3.5 ? '3.50–4.00 (Good)' : avg >= 3.0 ? '3.00 (Passing)' : 'Below 3.00 (Fail)';
+      letter = avg >= 4.75 ? '5.00 — Excellent'
+             : avg >= 4.0  ? '4.00–4.75 — Very Good'
+             : avg >= 3.5  ? '3.50–4.00 — Good'
+             : avg >= 3.0  ? '3.00 — Passing'
+             : 'Below 3.00 — Failing';
     } else if (scale === 'philippine-1') {
-      letter = avg <= 1.25 ? '1.00–1.25' : avg <= 1.75 ? '1.50–1.75' : avg <= 2.50 ? '2.00–2.50' : avg <= 3.00 ? '3.00' : 'Below 3.00 (Fail)';
+      letter = avg <= 1.5  ? 'Around 1.00–1.50 (Excellent)'
+             : avg <= 2.0  ? 'Around 1.75–2.00 (Good)'
+             : avg <= 3.0  ? 'Around 2.50–3.00 (Passing)'
+             : 'Above 3.00 — Failing';
     } else {
-      letter = avg >= 4.0 ? 'A (4.0 max)' : avg >= 3.7 ? 'A-' : avg >= 3.3 ? 'B+' : avg >= 3.0 ? 'B' : avg >= 2.7 ? 'B-' : avg >= 2.0 ? 'C' : 'D or below';
+      letter = avg >= 4.0 ? 'A (4.0)'
+             : avg >= 3.7 ? 'A-'
+             : avg >= 3.3 ? 'B+'
+             : avg >= 3.0 ? 'B'
+             : avg >= 2.7 ? 'B-'
+             : avg >= 2.0 ? 'C'
+             : 'D or below';
     }
+
     const feasible = isPH ? (avg >= 1.0 && avg <= 5.0) : (avg >= 0 && avg <= 4.0);
-    setWhatIfResult({ avg: Math.min(isPH ? 5.0 : 4.0, Math.max(isPH ? 1.0 : 0, avg)).toFixed(2), letter, feasible });
+    setWhatIfResult({ avg: avg.toFixed(2), letter, feasible });
   };
 
-  const gpaNum  = parseFloat(gpa.toFixed(2));
+  // ── Ring ─────────────────────────────────────────────────
+  const gwaNum  = parseFloat(gwa.toFixed(2));
   const ringPct = scale === 'philippine-5'
-    ? Math.min(gpaNum / 5.0, 1)
+    ? Math.min(gwaNum / 5.0, 1)
     : scale === 'philippine-1'
-    ? Math.max(0, Math.min(1, (3.0 - gpaNum) / 2.0))
-    : Math.min(gpaNum / 4.0, 1);
+    ? Math.max(0, Math.min(1, (5.0 - gwaNum) / 4.0))
+    : Math.min(gwaNum / 4.0, 1);
   const R = 70, CIRC = 2 * Math.PI * R;
-  const color = gpaColor(gpaNum, scale);
+  const color = gpaColor(gwaNum, scale);
+
+  const scaleLabel = scale === 'philippine-5' ? 'PH 5.0 Scale'
+                   : scale === 'philippine-1'  ? 'PH 1.0 Scale'
+                   : '4.0 US Scale';
+  const maxLabel   = scale === 'philippine-5' ? '5.00'
+                   : scale === 'philippine-1'  ? '1.00'
+                   : '4.00';
+  const gradePlaceholder = isPH ? `e.g. 2.5` : `e.g. A-`;
 
   return (
     <div className={styles.gpaWrap}>
-      {/* ── GPA Hero ── */}
+
+      {/* ── Hero card ── */}
       <div className={styles.gpaHeroCard}>
         <div className={styles.gpaRingWrap}>
           <svg width="180" height="180" viewBox="0 0 180 180">
             <circle cx="90" cy="90" r={R} fill="none" stroke="var(--border)" strokeWidth="10" />
             <circle
               cx="90" cy="90" r={R}
-              fill="none"
-              stroke={color}
-              strokeWidth="10"
-              strokeLinecap="round"
+              fill="none" stroke={color} strokeWidth="10" strokeLinecap="round"
               strokeDasharray={CIRC}
               strokeDashoffset={CIRC * (1 - ringPct)}
               style={{ transform: 'rotate(-90deg)', transformOrigin: '90px 90px', transition: 'stroke-dashoffset 0.8s ease, stroke 0.5s' }}
             />
           </svg>
           <div className={styles.gpaRingCenter}>
-            <div className={styles.gpaRingVal} style={{ color }}>{gpaNum.toFixed(2)}</div>
-            <div className={styles.gpaRingLbl}>GPA</div>
+            <div className={styles.gpaRingVal} style={{ color }}>{gradedCount > 0 ? gwaNum.toFixed(2) : '—'}</div>
+            <div className={styles.gpaRingLbl}>GWA</div>
           </div>
         </div>
+
         <div className={styles.gpaHeroInfo}>
-          <div className={styles.gpaHeroStanding} style={{ color }}>{gpaLabel(gpaNum, scale)}</div>
+          <div className={styles.gpaHeroStanding} style={{ color }}>{gpaLabel(gwaNum, scale)}</div>
           <div className={styles.gpaHeroStats}>
             <div className={styles.gpaHeroStat}>
               <span className={styles.gpaHeroStatVal}>{store.courses.length}</span>
-              <span className={styles.gpaHeroStatLbl}>Courses</span>
+              <span className={styles.gpaHeroStatLbl}>Subjects</span>
             </div>
             <div className={styles.gpaHeroStatDiv} />
             <div className={styles.gpaHeroStat}>
-              <span className={styles.gpaHeroStatVal}>{totalUnits}</span>
-              <span className={styles.gpaHeroStatLbl}>Units</span>
-            </div>
-            <div className={styles.gpaHeroStatDiv} />
-            <div className={styles.gpaHeroStat}>
-              <span className={styles.gpaHeroStatVal}>{Object.keys(bySemester).length}</span>
-              <span className={styles.gpaHeroStatLbl}>Semesters</span>
+              <span className={styles.gpaHeroStatVal}>{gradedCount > 0 ? totalUnits : '—'}</span>
+              <span className={styles.gpaHeroStatLbl}>Units Graded</span>
             </div>
           </div>
+          <div className={styles.gpaScalePill}>{scaleLabel} · Best: {maxLabel}</div>
           <div className={styles.gpaScaleBar}>
-            {scale === 'philippine-5'
-              ? [['1', '#E05858'], ['2', '#E2A95B'], ['3', '#6B7FD4'], ['5', '#5DAA88']].map(([l, c]) => (
-                  <div key={l} className={styles.gpaScaleSegment} style={{ background: c + '33' }}>
-                    <span style={{ color: c, fontWeight: 600 }}>{l}</span>
-                  </div>
-                ))
-              : scale === 'philippine-1'
-              ? [['5', '#E05858'], ['3', '#E2A95B'], ['2', '#6B7FD4'], ['1', '#5DAA88']].map(([l, c]) => (
-                  <div key={l} className={styles.gpaScaleSegment} style={{ background: c + '33' }}>
-                    <span style={{ color: c, fontWeight: 600 }}>{l}</span>
-                  </div>
-                ))
-              : [['D', '#E05858'], ['C', '#E2A95B'], ['B', '#6B7FD4'], ['A', '#5DAA88']].map(([l, c]) => (
-                  <div key={l} className={styles.gpaScaleSegment} style={{ background: c + '33' }}>
-                    <span style={{ color: c, fontWeight: 600 }}>{l}</span>
-                  </div>
-                ))
-            }
-            <div className={styles.gpaScaleMarker} style={{ left: `${ringPct * 100}%`, background: color }} />
+            {(() => {
+              const segs = scale === 'philippine-5'
+                ? [['Fail','#E05858'],['Pass','#E2A95B'],['Good','#6B7FD4'],['Excellent','#5DAA88']]
+                : scale === 'philippine-1'
+                ? [['Fail','#E05858'],['Pass','#E2A95B'],['CL','#6B7FD4'],['SCL','#5DAA88']]
+                : [['D/F','#E05858'],['C','#E2A95B'],['B','#6B7FD4'],['A','#5DAA88']];
+              return segs.map(([l, c]) => (
+                <div key={l} className={styles.gpaScaleSegment} style={{ background: c + '22' }}>
+                  <span style={{ color: c, fontWeight: 600, fontSize: 10 }}>{l}</span>
+                </div>
+              ));
+            })()}
+            {gradedCount > 0 && (
+              <div className={styles.gpaScaleMarker} style={{ left: `${ringPct * 100}%`, background: color }} />
+            )}
           </div>
         </div>
       </div>
 
       <div className={styles.gpaTwoCols}>
-        {/* ── Left: Course list ── */}
+        {/* ── Left: Spreadsheet-style subject table ── */}
         <div className={styles.gpaLeft}>
           <div className={styles.sectionHeader}>
-            <div className={styles.sectionTitle}>Courses</div>
-            <button className={styles.addTaskBtn} onClick={() => setShowForm(s => !s)}>
-              {showForm ? '✕ Cancel' : '+ Add Course'}
+            <div className={styles.sectionTitle}>My Subjects</div>
+            <button className={styles.addTaskBtn} onClick={addSubject}>
+              + Add Subject
             </button>
           </div>
 
-          {showForm && (
-            <form onSubmit={handleAdd} className={styles.addForm}>
-              <input className={styles.addFormInput} placeholder="Course Name (e.g. Calculus I)" value={name} onChange={e => setName(e.target.value)} autoFocus />
-              <div className={styles.addFormRow}>
-                <input className={styles.addFormInput} placeholder="Semester (e.g. 1st Sem AY24)" value={semester} onChange={e => setSemester(e.target.value)} />
-                <input className={styles.addFormInput} type="number" placeholder="Units" value={units} onChange={e => setUnits(e.target.value)} min="0" step="0.5" />
-                <select className={styles.addFormInput} value={grade} onChange={e => setGrade(e.target.value)}>
-                  {Object.keys(GRADES).map(g => <option key={g} value={g}>{g}</option>)}
-                </select>
-              </div>
-              <button type="submit" className={styles.addFormSubmit} disabled={!name || !credits}>Add Course</button>
-            </form>
-          )}
 
-          {store.courses.length === 0 ? (
-            <div className={styles.emptyState}>
-              <div className={styles.emptyIcon}>📚</div>
-              <div className={styles.emptyTitle}>No courses yet</div>
-              <div className={styles.emptyDesc}>Add your first course to start tracking your GPA.</div>
-            </div>
-          ) : (
-            Object.entries(bySemester).map(([sem, courses]) => (
-              <div key={sem} className={styles.semesterGroup}>
-                <div className={styles.semesterLabel}>{sem}</div>
-                {courses.map(course => {
-                  const gClr = gradeColor(course.grade, isPH);
-                  const pts  = GRADES[course.grade] ?? 0;
-                  const barPct = isPH
-                    ? Math.max(0, (3.0 - pts) / 2.0) * 100
-                    : (pts / 4.0) * 100;
-                  return (
-                    <div key={course.id} className={styles.courseItem}>
-                      <div className={styles.courseBarWrap}>
-                        <div className={styles.courseBar} style={{ width: `${barPct}%`, background: gClr.color + '55' }} />
-                      </div>
-                      <div className={styles.courseInfo}>
-                        <div className={styles.courseName}>{course.name}</div>
-                        <div className={styles.courseMeta}>{course.semester} · {course.units} Units</div>
-                      </div>
-                      <div className={styles.courseGrade} style={{ color: gClr.color, background: gClr.bg }}>{course.grade}</div>
-                      <div className={styles.coursePoints} style={{ color: 'var(--text-3)' }}>{pts.toFixed(1)}</div>
-                      <button className={styles.taskDelete} onClick={() => store.deleteCourse(course.id)} aria-label="Delete course">
-                        <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-                          <line x1="10.5" y1="3.5" x2="3.5" y2="10.5" /><line x1="3.5" y1="3.5" x2="10.5" y2="10.5" />
-                        </svg>
-                      </button>
-                    </div>
-                  );
-                })}
-              </div>
-            ))
-          )}
+          {/* Column headers */}
+          <div className={styles.gpaTableHead}>
+            <span className={styles.gpaThNum}>#</span>
+            <span className={styles.gpaThName}>Subject Name</span>
+            <span className={styles.gpaThUnits}>Units</span>
+            <span className={styles.gpaThGrade}>Grade</span>
+            <span className={styles.gpaThAction} />
+          </div>
+
+          {/* Subject rows */}
+          <div className={styles.gpaSubjectList}>
+            {store.courses.map((course, i) => {
+              const valid = isValidGrade(course.grade, scale);
+              const gClr  = valid ? gradeColor(course.grade, scale) : { color: 'var(--text-3)', bg: 'transparent' };
+              return (
+                <SubjectRow
+                  key={course.id}
+                  course={course}
+                  index={i}
+                  scale={scale}
+                  valid={valid}
+                  gClr={gClr}
+                  gradePlaceholder={gradePlaceholder}
+                  onUpdate={(updates) => store.updateCourse(course.id, updates)}
+                  onDelete={() => store.deleteCourse(course.id)}
+                />
+              );
+            })}
+          </div>
+
+          <button className={styles.gpaAddRowBtn} onClick={addSubject}>
+            + Add Subject {store.courses.length + 1}
+          </button>
         </div>
 
-        {/* ── Right: What-If Calculator ── */}
+        {/* ── Right: Target calculator ── */}
         <div className={styles.gpaRight}>
-          <div className={styles.sectionTitle}>What-If Calculator</div>
-          <p className={styles.whatIfDesc}>Estimate what grades you need in future courses to hit a target GPA.</p>
+          <div className={styles.gpaCalcTitle}>🎯 Target Calculator</div>
+          <p className={styles.whatIfDesc}>
+            Want to hit a specific GWA? Enter your goal and the units you're taking next — we'll tell you what average you need.
+          </p>
+
           <div className={styles.whatIfForm}>
             <div className={styles.whatIfField}>
-              <label className={styles.whatIfLabel}>Target GPA</label>
-              <input className={styles.addFormInput} type="number" placeholder="e.g. 3.8" step="0.01" min="0" max="4.0" value={targetGpa} onChange={e => setTargetGpa(e.target.value)} />
+              <label className={styles.whatIfLabel}>
+                My Target GWA <span className={styles.gpaFormHint}>(best: {maxLabel})</span>
+              </label>
+              <input
+                className={styles.gpaFormInput}
+                type="number"
+                placeholder={isPH ? (scale === 'philippine-1' ? 'e.g. 1.50' : 'e.g. 4.50') : 'e.g. 3.80'}
+                step="0.01"
+                min={isPH ? '1' : '0'}
+                max={isPH ? '5' : '4'}
+                value={targetGpa}
+                onChange={e => { setTargetGpa(e.target.value); setWhatIfResult(null); }}
+              />
             </div>
-            <div className={styles.calcField}>
-              <div className={styles.calcLabel}>Future Units</div>
-              <input type="number" className={styles.calcInput} placeholder="Units" value={futureUnits} onChange={e => setFutureUnits(e.target.value)} />
+            <div className={styles.whatIfField}>
+              <label className={styles.whatIfLabel}>
+                Units next semester <span className={styles.gpaFormHint}>(total units)</span>
+              </label>
+              <input
+                className={styles.gpaFormInput}
+                type="number"
+                placeholder="e.g. 21"
+                step="0.5" min="0.5"
+                value={futureUnits}
+                onChange={e => { setFutureUnits(e.target.value); setWhatIfResult(null); }}
+              />
             </div>
-            <button className={styles.addFormSubmit} onClick={calcWhatIf} disabled={!targetGpa || !futureUnits}>Calculate</button>
+            <button className={styles.gpaCalcBtn} onClick={calcWhatIf} disabled={!targetGpa || !futureUnits || gradedCount === 0}>
+              Calculate
+            </button>
+            {gradedCount === 0 && <div className={styles.gpaFormHint} style={{ textAlign: 'center', marginTop: 4 }}>Add at least one grade first</div>}
           </div>
+
           {whatIfResult && (
             <div className={`${styles.whatIfResult} ${whatIfResult.feasible ? styles.whatIfOk : styles.whatIfWarn}`}>
               {whatIfResult.feasible ? (
                 <>
                   <div className={styles.whatIfResultTitle}>You need to average</div>
-                  <div className={styles.whatIfResultGpa}>{whatIfResult.avg}</div>
-                  <div className={styles.whatIfResultGrade}>≈ {whatIfResult.letter} per course</div>
-                  <div className={styles.whatIfResultNote}>in your next {futureUnits} units to reach a {parseFloat(targetGpa).toFixed(2)} GPA.</div>
+                  <div className={styles.whatIfResultGpa} style={{ color }}>{whatIfResult.avg}</div>
+                  <div className={styles.whatIfResultGrade}>{whatIfResult.letter}</div>
+                  <div className={styles.whatIfResultNote}>
+                    across your next {futureUnits} units to reach a <strong>{parseFloat(targetGpa).toFixed(2)}</strong> GWA.
+                  </div>
                 </>
               ) : (
-                <div className={styles.whatIfResultContent}>
-                  <div className={styles.whatIfResultTitle}>Not Feasible</div>
-                  <div className={styles.whatIfResultNote}>This target requires more than the maximum grade points — mathematically impossible with {futureUnits} future units.</div>
-                </div>
+                <>
+                  <div className={styles.whatIfResultTitle} style={{ color: '#E05858' }}>Not Achievable</div>
+                  <div className={styles.whatIfResultNote}>
+                    Even with the best grade in all {futureUnits} units, you can't reach <strong>{parseFloat(targetGpa).toFixed(2)}</strong> from your current GWA. Try adjusting your target or adding more units.
+                  </div>
+                </>
               )}
+            </div>
+          )}
+
+          {gradedCount > 0 && !whatIfResult && (
+            <div className={styles.gpaCalcHint}>
+              <span>📊</span>
+              <span>Current GWA: <strong style={{ color }}>{gwaNum.toFixed(2)}</strong> — {gpaLabel(gwaNum, scale)}</span>
             </div>
           )}
         </div>
@@ -330,3 +369,88 @@ export default function GpaTracker({ store }) {
     </div>
   );
 }
+
+// ── Inline editable subject row ────────────────────────────────
+function SubjectRow({ course, index, scale, valid, gClr, gradePlaceholder, onUpdate, onDelete }) {
+  const [localName,  setLocalName]  = useState(course.name  || '');
+  const [localUnits, setLocalUnits] = useState(String(course.units || 3));
+  const [localGrade, setLocalGrade] = useState(course.grade || '');
+  const [gradeErr,   setGradeErr]   = useState(false);
+
+  // Keep local in sync if store changes externally
+  useEffect(() => { setLocalName(course.name  || ''); }, [course.name]);
+  useEffect(() => { setLocalUnits(String(course.units || 3)); }, [course.units]);
+  useEffect(() => { setLocalGrade(course.grade || ''); }, [course.grade]);
+
+  const commitGrade = () => {
+    if (!localGrade.trim()) { onUpdate({ grade: '' }); setGradeErr(false); return; }
+    if (isValidGrade(localGrade, scale)) {
+      onUpdate({ grade: normaliseGrade(localGrade, scale) });
+      setGradeErr(false);
+    } else {
+      setGradeErr(true);
+    }
+  };
+
+  return (
+    <div className={`${styles.gpaTableRow} ${valid ? styles.gpaRowGraded : ''}`}>
+      {valid && (
+        <div className={styles.courseBarWrap}>
+          <div className={styles.courseBar} style={{
+            width: (() => {
+              const pts = valid ? (getGradeValue(course.grade, scale) ?? 0) : 0;
+              return scale === 'philippine-1'
+                ? `${Math.max(0, (5.0 - pts) / 4.0) * 100}%`
+                : scale === 'philippine-5'
+                ? `${(pts / 5.0) * 100}%`
+                : `${(pts / 4.0) * 100}%`;
+            })(),
+            background: gClr.color + '22'
+          }} />
+        </div>
+      )}
+
+      <span className={styles.gpaRowNum}>{index + 1}</span>
+
+      <input
+        className={styles.gpaRowName}
+        value={localName}
+        placeholder={`Subject ${index + 1}`}
+        onChange={e => setLocalName(e.target.value)}
+        onBlur={() => onUpdate({ name: localName.trim() || `Subject ${index + 1}` })}
+      />
+
+      <input
+        className={styles.gpaRowUnits}
+        type="number"
+        value={localUnits}
+        min="0.5" max="12" step="0.5"
+        onChange={e => setLocalUnits(e.target.value)}
+        onBlur={() => onUpdate({ units: parseFloat(localUnits) || 3 })}
+        title="Units"
+      />
+
+      <div className={styles.gpaRowGradeWrap}>
+        <input
+          className={`${styles.gpaRowGrade} ${gradeErr ? styles.gpaRowGradeErr : ''} ${valid ? styles.gpaRowGradeValid : ''}`}
+          style={valid ? { color: gClr.color, fontWeight: 700 } : {}}
+          value={localGrade}
+          placeholder={gradePlaceholder}
+          onChange={e => { setLocalGrade(e.target.value); setGradeErr(false); }}
+          onBlur={commitGrade}
+          onKeyDown={e => e.key === 'Enter' && e.target.blur()}
+          title={`Enter grade${scale !== '4.0' ? ' (1.0–5.0)' : ' (A, B+, etc.)'}`}
+        />
+        {gradeErr && <div className={styles.gpaRowGradeErrTip}>{scale !== '4.0' ? '1.0–5.0' : 'A, B+…'}</div>}
+      </div>
+
+      <button className={styles.taskDelete} onClick={onDelete} aria-label="Remove subject">
+        <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+          <line x1="10.5" y1="3.5" x2="3.5" y2="10.5" /><line x1="3.5" y1="3.5" x2="10.5" y2="10.5" />
+        </svg>
+      </button>
+    </div>
+  );
+}
+
+

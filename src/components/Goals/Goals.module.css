@@ -591,29 +591,407 @@
   z-index: 1;
 }
 
-/* What-if calculator */
+/* ── GPA Table (spreadsheet style) ── */
+.gpaSubjectList { display: flex; flex-direction: column; }
+.gpaTableHead {
+  display: grid;
+  grid-template-columns: 24px 1fr 70px 90px 32px;
+  gap: 8px;
+  padding: 0 12px 6px;
+  align-items: center;
+}
+
+.gpaThName, .gpaThUnits, .gpaThGrade {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: var(--text-3);
+}
+.gpaThUnits, .gpaThGrade { text-align: center; }
+
+.gpaTableRow {
+  position: relative;
+  display: grid;
+  grid-template-columns: 24px 1fr 70px 90px 32px;
+  gap: 8px;
+  align-items: center;
+  padding: 8px 12px;
+  border-radius: 12px;
+  margin-bottom: 6px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  overflow: hidden;
+  transition: border-color 0.15s;
+}
+.gpaTableRow:hover { border-color: var(--text-3); }
+.gpaTableRow:focus-within { border-color: var(--text-2); }
+
+
+.gpaRowNum {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-3);
+  text-align: right;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 1;
+}
+.gpaRowName {
+  background: transparent;
+  border: none;
+  color: var(--text-1);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  outline: none;
+  width: 100%;
+  position: relative;
+  z-index: 1;
+  min-width: 0;
+}
+.gpaRowName::placeholder { color: var(--text-3); }
+
+.gpaRowUnits {
+  background: transparent;
+  border: none;
+  color: var(--text-2);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  outline: none;
+  width: 100%;
+  text-align: center;
+  position: relative;
+  z-index: 1;
+}
+.gpaRowUnits::-webkit-inner-spin-button { opacity: 0.4; }
+
+.gpaRowGradeWrap {
+  position: relative;
+  z-index: 1;
+}
+.gpaRowGrade {
+  width: 100%;
+  background: var(--bg-off);
+  border: 1.5px solid var(--border);
+  color: var(--text-1);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  padding: 5px 8px;
+  border-radius: 8px;
+  outline: none;
+  text-align: center;
+  transition: border-color 0.15s;
+  box-sizing: border-box;
+}
+.gpaRowGrade:focus { border-color: var(--text-2); }
+.gpaRowGradeErr { border-color: #E05858 !important; }
+.gpaRowGradeValid { border-color: transparent; background: transparent; }
+.gpaRowGradeErrTip {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: #E05858;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 5px;
+  white-space: nowrap;
+  z-index: 10;
+  pointer-events: none;
+}
+
+/* Add row button */
+.gpaAddRowBtn {
+  width: 100%;
+  margin-top: 4px;
+  padding: 10px;
+  background: transparent;
+  border: 1.5px dashed var(--border);
+  border-radius: 12px;
+  color: var(--text-3);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s, background 0.15s;
+}
+.gpaAddRowBtn:hover {
+  border-color: var(--text-3);
+  color: var(--text-2);
+  background: var(--bg-off);
+}
+
+
+.gpaInlineAdd {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 14px 16px;
+  margin-bottom: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  transition: border-color 0.2s;
+}
+.gpaInlineAdd:focus-within {
+  border-color: var(--text-3);
+}
+.gpaInlineInput {
+  width: 100%;
+  background: transparent;
+  border: none;
+  color: var(--text-1);
+  padding: 0;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  outline: none;
+  box-sizing: border-box;
+}
+.gpaInlineInput::placeholder { color: var(--text-3); }
+.gpaInlineRight {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.gpaInlineSmall {
+  background: var(--bg-off);
+  border: 1px solid var(--border);
+  color: var(--text-1);
+  padding: 7px 10px;
+  border-radius: 8px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  outline: none;
+  width: 90px;
+  transition: border-color 0.2s;
+  box-sizing: border-box;
+}
+.gpaInlineSmall:focus { border-color: var(--text-2); }
+.gpaInlineErr { border-color: #E05858 !important; }
+.gpaInlineBtn {
+  margin-left: auto;
+  padding: 7px 16px;
+  background: var(--text-1);
+  color: var(--bg);
+  border: none;
+  border-radius: 8px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: opacity 0.15s;
+  flex-shrink: 0;
+}
+.gpaInlineBtn:hover { opacity: 0.82; }
+.gpaGradeErr {
+  font-size: 11.5px;
+  color: #E05858;
+  padding: 2px 0 0;
+}
+.gpaRowNum {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-3);
+  min-width: 18px;
+  text-align: right;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 1;
+}
+.gpaSubjectList { display: flex; flex-direction: column; gap: 0; }
+
+/* ── GPA Add-Course Form (legacy, kept for reference) ── */
+.gpaAddForm {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 20px;
+  margin-bottom: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.gpaFormRow {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: 10px;
+  align-items: end;
+}
+.gpaFormField {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.gpaFormFieldShort {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  min-width: 100px;
+}
+.gpaFormLabel {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-3);
+}
+.gpaFormHint {
+  font-size: 10px;
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: 0;
+  color: var(--text-3);
+  opacity: 0.7;
+}
+.gpaFormInput {
+  width: 100%;
+  background: var(--bg-off);
+  border: 1px solid var(--border);
+  color: var(--text-1);
+  padding: 9px 12px;
+  border-radius: 10px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13.5px;
+  outline: none;
+  transition: border-color 0.2s;
+  box-sizing: border-box;
+}
+.gpaFormInput:focus { border-color: var(--text-2); }
+.gpaFormInput option { background: var(--bg-card); }
+.gpaFormSubmit {
+  align-self: flex-start;
+  background: var(--text-1);
+  color: var(--bg);
+  border: none;
+  padding: 10px 20px;
+  border-radius: 10px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13.5px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+.gpaFormSubmit:hover { opacity: 0.85; }
+.gpaFormSubmit:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* ── Scale pill ── */
+.gpaScalePill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--text-3);
+  background: var(--bg-off);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 4px 12px;
+  margin-bottom: 14px;
+}
+
+/* ── Semester header with GWA ── */
+.semesterHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+.semesterGwa {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+}
+
+/* ── Course units badge ── */
+.courseUnitsBadge {
+  background: var(--bg-off);
+  border: 1px solid var(--border);
+  color: var(--text-3);
+  border-radius: 5px;
+  padding: 1px 6px;
+  font-size: 10.5px;
+  font-weight: 600;
+}
+
+/* ── Empty action button ── */
+.emptyAction {
+  margin-top: 12px;
+  padding: 10px 20px;
+  background: var(--bg-off);
+  border: 1px solid var(--border);
+  color: var(--text-2);
+  border-radius: 10px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+.emptyAction:hover { background: var(--border); border-color: var(--text-3); }
+
+/* ── Calculator panel ── */
+.gpaCalcTitle {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-1);
+  margin-bottom: 4px;
+  letter-spacing: -0.2px;
+}
+.gpaCalcBtn {
+  width: 100%;
+  padding: 11px;
+  background: var(--text-1);
+  color: var(--bg);
+  border: none;
+  border-radius: 10px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.15s;
+  margin-top: 4px;
+}
+.gpaCalcBtn:hover { opacity: 0.85; }
+.gpaCalcBtn:disabled { opacity: 0.35; cursor: not-allowed; }
+.gpaCalcHint {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin-top: 14px;
+  padding: 12px;
+  background: var(--bg-off);
+  border-radius: 10px;
+  font-size: 12.5px;
+  color: var(--text-3);
+  line-height: 1.5;
+}
+
+/* What-if results */
 .whatIfDesc {
   font-size: 12.5px;
   color: var(--text-3);
-  margin: 8px 0 16px;
-  line-height: 1.5;
+  margin: 6px 0 14px;
+  line-height: 1.6;
 }
-.whatIfForm { display: flex; flex-direction: column; gap: 10px; }
+.whatIfForm { display: flex; flex-direction: column; gap: 12px; }
 .whatIfField { display: flex; flex-direction: column; gap: 5px; }
-.whatIfLabel { font-size: 11px; font-weight: 600; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.5px; }
-
+.whatIfLabel { font-size: 11px; font-weight: 700; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.5px; }
 .whatIfResult {
   margin-top: 16px;
-  padding: 16px;
-  border-radius: 12px;
+  padding: 18px;
+  border-radius: 14px;
   text-align: center;
 }
-.whatIfOk  { background: rgba(93,170,136,0.1); border: 1px solid rgba(93,170,136,0.25); }
+.whatIfOk   { background: rgba(93,170,136,0.1);  border: 1px solid rgba(93,170,136,0.25); }
 .whatIfWarn { background: rgba(224,88,88,0.08); border: 1px solid rgba(224,88,88,0.2); }
 .whatIfResultTitle { font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-3); margin-bottom: 6px; font-weight: 700; }
-.whatIfResultGpa   { font-size: 36px; font-weight: 700; color: #5DAA88; font-family: 'Lora', serif; line-height: 1; }
-.whatIfResultGrade { font-size: 14px; color: var(--text-2); margin: 4px 0 8px; font-weight: 600; }
-.whatIfResultNote  { font-size: 12px; color: var(--text-3); line-height: 1.5; }
+.whatIfResultGpa   { font-size: 40px; font-weight: 700; font-family: 'Lora', serif; line-height: 1; margin-bottom: 4px; }
+.whatIfResultGrade { font-size: 13px; color: var(--text-2); margin: 4px 0 10px; font-weight: 600; }
+.whatIfResultNote  { font-size: 12px; color: var(--text-3); line-height: 1.6; }
 
 /* ══════════════════════════════
    VISION BOARD

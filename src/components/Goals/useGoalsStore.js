@@ -3,7 +3,11 @@ import { useState, useEffect } from 'react';
 const STORAGE_KEY = 'begin_goals';
 
 const defaultState = {
-  courses: [],
+  courses: [
+    { id: '_default1', name: 'Subject 1', units: 3, grade: '', createdAt: 0 },
+    { id: '_default2', name: 'Subject 2', units: 3, grade: '', createdAt: 0 },
+    { id: '_default3', name: 'Subject 3', units: 3, grade: '', createdAt: 0 },
+  ],
   tasks: [],
   visionGoals: [],
 };
