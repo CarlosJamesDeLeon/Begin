@@ -98,29 +98,29 @@ export default function GpaTracker({ store }) {
                : GRADE_POINTS;
   const defaultGrade = scale === 'philippine-1' ? '1.00' : scale === 'philippine-5' ? '5.00' : 'A';
   const [name, setName]       = useState('');
-  const [credits, setCredits] = useState('');
+  const [units, setUnits] = useState('');
   const [grade, setGrade]     = useState(defaultGrade);
   const [semester, setSemester] = useState('');
   const [targetGpa, setTargetGpa]         = useState('');
-  const [futureCredits, setFutureCredits] = useState('');
+  const [futureUnits, setFutureUnits] = useState('');
   const [whatIfResult, setWhatIfResult]   = useState(null);
   const [showForm, setShowForm] = useState(false);
 
   const handleAdd = (e) => {
     e.preventDefault();
-    if (!name || !credits) return;
-    store.addCourse({ name: name.trim(), credits: parseFloat(credits), grade, semester: semester.trim() });
-    setName(''); setCredits(''); setGrade(defaultGrade); setSemester('');
+    if (!name || !units) return;
+    store.addCourse({ name: name.trim(), units: parseFloat(units), grade, semester: semester.trim() });
+    setName(''); setUnits(''); setGrade(defaultGrade); setSemester('');
     setShowForm(false);
   };
 
-  const { gpa, totalCredits, totalPoints } = useMemo(() => {
-    let pts = 0, cred = 0;
+  const { gpa, totalUnits, totalPoints } = useMemo(() => {
+    let pts = 0, unitsSum = 0;
     store.courses.forEach(c => {
-      pts  += (GRADES[c.grade] ?? 0) * c.credits;
-      cred += c.credits;
+      pts  += (GRADES[c.grade] ?? 0) * (c.units || c.credits || 0);
+      unitsSum += (c.units || c.credits || 0);
     });
-    return { gpa: cred > 0 ? pts / cred : 0, totalCredits: cred, totalPoints: pts };
+    return { gpa: unitsSum > 0 ? pts / unitsSum : 0, totalUnits: unitsSum, totalPoints: pts };
   }, [store.courses, scale]);
 
   // Group courses by semester
@@ -136,11 +136,11 @@ export default function GpaTracker({ store }) {
 
   const calcWhatIf = () => {
     const tgt = parseFloat(targetGpa);
-    const fut = parseFloat(futureCredits);
+    const fut = parseFloat(futureUnits);
     if (!tgt || !fut) return;
     if (isPH && (tgt < 1.0 || tgt > 5.0)) return;
     if (!isPH && (tgt < 0 || tgt > 4.0)) return;
-    const neededTotal  = tgt * (totalCredits + fut);
+    const neededTotal  = tgt * (totalUnits + fut);
     const neededFuture = neededTotal - totalPoints;
     const avg          = neededFuture / fut;
     let letter;
@@ -196,8 +196,8 @@ export default function GpaTracker({ store }) {
             </div>
             <div className={styles.gpaHeroStatDiv} />
             <div className={styles.gpaHeroStat}>
-              <span className={styles.gpaHeroStatVal}>{totalCredits}</span>
-              <span className={styles.gpaHeroStatLbl}>Credits</span>
+              <span className={styles.gpaHeroStatVal}>{totalUnits}</span>
+              <span className={styles.gpaHeroStatLbl}>Units</span>
             </div>
             <div className={styles.gpaHeroStatDiv} />
             <div className={styles.gpaHeroStat}>
@@ -244,7 +244,7 @@ export default function GpaTracker({ store }) {
               <input className={styles.addFormInput} placeholder="Course Name (e.g. Calculus I)" value={name} onChange={e => setName(e.target.value)} autoFocus />
               <div className={styles.addFormRow}>
                 <input className={styles.addFormInput} placeholder="Semester (e.g. 1st Sem AY24)" value={semester} onChange={e => setSemester(e.target.value)} />
-                <input className={styles.addFormInput} type="number" placeholder="Credits" value={credits} onChange={e => setCredits(e.target.value)} min="0" step="0.5" />
+                <input className={styles.addFormInput} type="number" placeholder="Units" value={units} onChange={e => setUnits(e.target.value)} min="0" step="0.5" />
                 <select className={styles.addFormInput} value={grade} onChange={e => setGrade(e.target.value)}>
                   {Object.keys(GRADES).map(g => <option key={g} value={g}>{g}</option>)}
                 </select>
@@ -276,7 +276,7 @@ export default function GpaTracker({ store }) {
                       </div>
                       <div className={styles.courseInfo}>
                         <div className={styles.courseName}>{course.name}</div>
-                        <div className={styles.courseMeta}>{course.credits} credits · {course.semester || 'No semester'}</div>
+                        <div className={styles.courseMeta}>{course.semester} · {course.units} Units</div>
                       </div>
                       <div className={styles.courseGrade} style={{ color: gClr.color, background: gClr.bg }}>{course.grade}</div>
                       <div className={styles.coursePoints} style={{ color: 'var(--text-3)' }}>{pts.toFixed(1)}</div>
@@ -302,11 +302,11 @@ export default function GpaTracker({ store }) {
               <label className={styles.whatIfLabel}>Target GPA</label>
               <input className={styles.addFormInput} type="number" placeholder="e.g. 3.8" step="0.01" min="0" max="4.0" value={targetGpa} onChange={e => setTargetGpa(e.target.value)} />
             </div>
-            <div className={styles.whatIfField}>
-              <label className={styles.whatIfLabel}>Future Credits</label>
-              <input className={styles.addFormInput} type="number" placeholder="e.g. 15" min="1" step="1" value={futureCredits} onChange={e => setFutureCredits(e.target.value)} />
+            <div className={styles.calcField}>
+              <div className={styles.calcLabel}>Future Units</div>
+              <input type="number" className={styles.calcInput} placeholder="Units" value={futureUnits} onChange={e => setFutureUnits(e.target.value)} />
             </div>
-            <button className={styles.addFormSubmit} onClick={calcWhatIf} disabled={!targetGpa || !futureCredits}>Calculate</button>
+            <button className={styles.addFormSubmit} onClick={calcWhatIf} disabled={!targetGpa || !futureUnits}>Calculate</button>
           </div>
           {whatIfResult && (
             <div className={`${styles.whatIfResult} ${whatIfResult.feasible ? styles.whatIfOk : styles.whatIfWarn}`}>
@@ -315,13 +315,13 @@ export default function GpaTracker({ store }) {
                   <div className={styles.whatIfResultTitle}>You need to average</div>
                   <div className={styles.whatIfResultGpa}>{whatIfResult.avg}</div>
                   <div className={styles.whatIfResultGrade}>≈ {whatIfResult.letter} per course</div>
-                  <div className={styles.whatIfResultNote}>in your next {futureCredits} credits to reach a {parseFloat(targetGpa).toFixed(2)} GPA.</div>
+                  <div className={styles.whatIfResultNote}>in your next {futureUnits} units to reach a {parseFloat(targetGpa).toFixed(2)} GPA.</div>
                 </>
               ) : (
-                <>
-                  <div className={styles.whatIfResultTitle}>Not achievable</div>
-                  <div className={styles.whatIfResultNote}>This target requires more than 4.0 grade points — mathematically impossible with {futureCredits} future credits.</div>
-                </>
+                <div className={styles.whatIfResultContent}>
+                  <div className={styles.whatIfResultTitle}>Not Feasible</div>
+                  <div className={styles.whatIfResultNote}>This target requires more than the maximum grade points — mathematically impossible with {futureUnits} future units.</div>
+                </div>
               )}
             </div>
           )}
