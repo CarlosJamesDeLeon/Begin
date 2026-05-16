@@ -62,6 +62,16 @@ export function useFinanceStore(activeOptionId = 'general') {
     }
   });
 
+  // Grand total across ALL accounts
+  let grandBalance = 0;
+  (data.transactions || []).forEach(tx => {
+    if (tx.type === 'in' || tx.type === 'saved') {
+      grandBalance += tx.amount;
+    } else if (tx.type === 'out') {
+      grandBalance -= tx.amount;
+    }
+  });
+
   function addMoney(amount, note) {
     const tx = {
       id: '_' + Math.random().toString(36).slice(2, 9),
@@ -124,6 +134,7 @@ export function useFinanceStore(activeOptionId = 'general') {
     options: safeOptions, 
     transactions: activeTransactions,
     balance,
+    grandBalance,
     totalIn,
     totalOut,
     addMoney, 

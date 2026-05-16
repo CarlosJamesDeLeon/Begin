@@ -40,7 +40,14 @@ const Dashboard = ({ store, navigate, dark, toggleTheme }) => {
   const notesThisWeek = store.notes.filter(n => n.updatedAt > oneWeekAgo).length;
 
   const stats = [
-    { val: `₱${finance.balance.toLocaleString('en-PH', { minimumFractionDigits: 2 })}`, label: 'General Balance', delta: finance.balance >= 0 ? '↑ on track' : '↓ low', cls: finance.balance >= 0 ? 'up' : 'down', iconCls: 'icon-green', icon: statIcons[0] },
+    { 
+      val: `${prefs.currency}${finance.grandBalance.toLocaleString(prefs.currencyLocale || 'en-PH', { minimumFractionDigits: 2 })}`, 
+      label: 'Total Balance', 
+      delta: finance.grandBalance >= 0 ? '↑ on track' : '↓ low', 
+      cls: finance.grandBalance >= 0 ? 'up' : 'down', 
+      iconCls: 'icon-green', 
+      icon: statIcons[0] 
+    },
     { val: study.fmtMinutes(study.todayMinutes) || '0m', label: 'Studied today', delta: study.todayMinutes > 0 ? '↑ growing' : '— resting', cls: study.todayMinutes > 0 ? 'up' : 'neutral', iconCls: 'icon-purple', icon: statIcons[1] },
     { val: study.streak.toString(), label: 'Day streak', delta: study.streak > 0 ? '🔥 active' : '—', cls: study.streak > 0 ? 'up' : 'neutral', iconCls: 'icon-orange', icon: statIcons[2] },
     { val: notesThisWeek.toString(), label: 'Notes this week', delta: notesThisWeek > 0 ? '↑ productive' : '— steady', cls: notesThisWeek > 0 ? 'up' : 'neutral', iconCls: 'icon-blue', icon: statIcons[3] },
