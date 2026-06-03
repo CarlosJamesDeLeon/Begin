@@ -1,4 +1,14 @@
 node_modules/
 .DS_Store
 dist/
+
+# Environment variables (frontend)
 .env
+
+# ── Server ──
+server/.env
+server/node_modules/
+
+# SQLite database — never commit this!
+server/prisma/dev.db
+server/prisma/dev.db-journal

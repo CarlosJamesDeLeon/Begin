@@ -1,0 +1,128 @@
+// This is your Prisma schema file
+// Learn more about it at: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+// ─────────────────────────────────────────────
+// USER
+// ─────────────────────────────────────────────
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  name         String
+  passwordHash String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  notebooks   Notebook[]
+  notes       Note[]
+  finances    Finance[]
+  goals       Goal[]
+  studyData   StudyData?
+  preferences Preference?
+
+  @@map("users")
+}
+
+// ─────────────────────────────────────────────
+// NOTEBOOKS & NOTES
+// ─────────────────────────────────────────────
+model Notebook {
+  id        String   @id @default(cuid())
+  name      String
+  color     String   @default("#6B7FD4")
+  icon      String   @default("📓")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  notes  Note[]
+
+  @@map("notebooks")
+}
+
+model Note {
+  id         String   @id @default(cuid())
+  title      String   @default("Untitled")
+  content    String   @default("")
+  isPinned   Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  notebookId String
+  notebook   Notebook @relation(fields: [notebookId], references: [id], onDelete: Cascade)
+
+  @@map("notes")
+}
+
+// ─────────────────────────────────────────────
+// FINANCE
+// ─────────────────────────────────────────────
+model Finance {
+  id          String   @id @default(cuid())
+  type        String   // "income" | "expense"
+  category    String
+  description String
+  amount      Float
+  date        String
+  createdAt   DateTime @default(now())
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("finances")
+}
+
+// ─────────────────────────────────────────────
+// GOALS
+// ─────────────────────────────────────────────
+model Goal {
+  id        String   @id @default(cuid())
+  type      String   // "todo" | "gpa" | "vision"
+  data      String   // JSON blob for flexibility
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("goals")
+}
+
+// ─────────────────────────────────────────────
+// STUDY DATA
+// ─────────────────────────────────────────────
+model StudyData {
+  id        String   @id @default(cuid())
+  data      String   // JSON blob: garden, sessions, streak, etc.
+  updatedAt DateTime @updatedAt
+
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("study_data")
+}
+
+// ─────────────────────────────────────────────
+// PREFERENCES
+// ─────────────────────────────────────────────
+model Preference {
+  id        String   @id @default(cuid())
+  data      String   // JSON blob: theme, accent color, etc.
+  updatedAt DateTime @updatedAt
+
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("preferences")
+}

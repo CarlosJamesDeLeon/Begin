@@ -718,4 +718,55 @@
     color: var(--text-1);
     background: var(--bg-off);
   }
+
+  /* ── Sidebar Logout ── */
+  .sidebar-profile-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .sidebar-logout-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    color: var(--text-3);
+    transition: color var(--transition), background var(--transition);
+  }
+
+  .sidebar-logout-btn:hover {
+    color: var(--color-danger);
+    background: var(--color-danger-bg);
+  }
+
+  .sidebar-logout-btn svg {
+    width: 14px;
+    height: 14px;
+  }
+}
+
+/* ── Mobile Logout ── */
+.mobile-logout-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  color: var(--text-3);
+  margin-left: 4px;
+  transition: color var(--transition), background var(--transition);
+}
+
+.mobile-logout-btn:hover {
+  color: var(--color-danger);
+  background: var(--color-danger-bg);
+}
+
+.mobile-logout-btn svg {
+  width: 14px;
+  height: 14px;
 }

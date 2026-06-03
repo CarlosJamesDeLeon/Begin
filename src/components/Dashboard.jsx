@@ -4,7 +4,7 @@ import { useFinanceStore } from './Finance/useFinanceStore';
 import { useStudyStore } from './Study/useStudyStore';
 import { usePrefsStore } from './Preferences/usePrefsStore';
 
-const Dashboard = ({ store, navigate, dark, toggleTheme }) => {
+const Dashboard = ({ store, navigate, dark, toggleTheme, user, onLogout }) => {
   const [time, setTime] = useState(new Date());
   const [goalsExpanded, setGoalsExpanded] = useState(false);
   
@@ -94,6 +94,20 @@ const Dashboard = ({ store, navigate, dark, toggleTheme }) => {
         <div className="topbar-actions">
           <ThemeToggle dark={dark} toggle={toggleTheme} />
           <div className="clock">{h}:{m}</div>
+          {onLogout && (
+            <button
+              id="mobile-logout-btn"
+              className="mobile-logout-btn"
+              onClick={onLogout}
+              title="Log out"
+            >
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M6 2H3a1 1 0 00-1 1v10a1 1 0 001 1h3"/>
+                <polyline points="10,5 13,8 10,11"/>
+                <line x1="13" y1="8" x2="6" y2="8"/>
+              </svg>
+            </button>
+          )}
         </div>
       </header>
 
@@ -205,14 +219,30 @@ const Dashboard = ({ store, navigate, dark, toggleTheme }) => {
         <div className="sidebar-profile">
           <div className="profile-info-wrap">
             <div className="profile-avatar" style={{ background: prefs.avatarColor }}>
-              {(prefs.name || 'You').charAt(0).toUpperCase()}
+              {(user?.name || prefs.name || 'You').charAt(0).toUpperCase()}
             </div>
             <div className="profile-info">
-              <span className="profile-name">{prefs.name || 'You'}</span>
+              <span className="profile-name">{user?.name || prefs.name || 'You'}</span>
               <span className="profile-role">Student</span>
             </div>
           </div>
-          <ThemeToggle dark={dark} toggle={toggleTheme} />
+          <div className="sidebar-profile-actions">
+            <ThemeToggle dark={dark} toggle={toggleTheme} />
+            {onLogout && (
+              <button
+                id="desktop-logout-btn"
+                className="sidebar-logout-btn"
+                onClick={onLogout}
+                title="Log out"
+              >
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M6 2H3a1 1 0 00-1 1v10a1 1 0 001 1h3"/>
+                  <polyline points="10,5 13,8 10,11"/>
+                  <line x1="13" y1="8" x2="6" y2="8"/>
+                </svg>
+              </button>
+            )}
+          </div>
         </div>
       </aside>
 

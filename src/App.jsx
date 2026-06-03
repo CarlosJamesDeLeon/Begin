@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { useStore } from './hooks/useStore';
 import { useFocusSync } from './hooks/useFocusSync';
 import { useTheme } from './hooks/useTheme';
+import { useAuth } from './context/AuthContext';
+import AuthModal from './components/Auth/AuthModal';
 import Dashboard from './components/Dashboard';
 import NotebookList from './components/NotebookList';
 import NoteList from './components/NoteList';
@@ -19,8 +21,27 @@ function App() {
 
   const store = useStore();
   const { dark, toggle: toggleTheme } = useTheme();
+  const { user, loading, logout } = useAuth();
 
   useFocusSync(currentView);
+
+  // While verifying token on first load, show a minimal loading screen
+  if (loading) {
+    return (
+      <div style={{
+        position: 'fixed', inset: 0, display: 'flex',
+        alignItems: 'center', justifyContent: 'center',
+        background: 'var(--bg)', color: 'var(--text-3)', fontSize: 14
+      }}>
+        Loading...
+      </div>
+    );
+  }
+
+  // Not logged in — show the auth screen
+  if (!user) {
+    return <AuthModal />;
+  }
 
   const navigate = (viewId, params = {}) => {
     if (params.notebookId) setActiveNotebookId(params.notebookId);
@@ -37,6 +58,8 @@ function App() {
           navigate={navigate}
           dark={dark}
           toggleTheme={toggleTheme}
+          user={user}
+          onLogout={logout}
         />
       )}
       {currentView === 'notebooks' && (
