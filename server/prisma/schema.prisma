@@ -6,9 +6,9 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
-  // Locally: file:./dev.db  (in server/prisma/)
-  // On Render: DATABASE_URL=file:/data/prod.db  (on the mounted persistent disk)
+  provider = "postgresql"
+  // Locally: use a Neon dev branch URL stored in .env
+  // On Render: set DATABASE_URL in the environment dashboard
   url      = env("DATABASE_URL")
 }
 
