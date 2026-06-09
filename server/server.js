@@ -22,14 +22,19 @@ app.use(helmet());
 // Example CLIENT_ORIGIN: "https://begin-app.vercel.app,http://localhost:5173"
 const allowedOrigins = (process.env.CLIENT_ORIGIN || 'http://localhost:5173')
   .split(',')
-  .map(o => o.trim());
+  .map(o => o.trim().replace(/\/$/, '')); // Automatically remove trailing slashes
 
 app.use(cors({
   origin: (origin, callback) => {
     // Allow requests with no origin (e.g. curl, Postman, server-to-server)
     if (!origin) return callback(null, true);
-    if (allowedOrigins.includes(origin)) return callback(null, true);
-    callback(new Error(`CORS: origin ${origin} not allowed`));
+    
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+    
+    console.warn(`[CORS Blocked] Request from origin "${origin}" was blocked. Allowed origins are: ${allowedOrigins.join(', ')}`);
+    callback(null, false); // Reject CORS request gracefully
   },
   credentials: true,
 }));
