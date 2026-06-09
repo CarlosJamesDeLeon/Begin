@@ -1,0 +1,32 @@
+# render.yaml — Deploy Begin's Express backend to Render (free tier)
+# Docs: https://render.com/docs/blueprint-spec
+
+services:
+  - type: web
+    name: begin-server
+    runtime: node
+    rootDir: server
+    buildCommand: npm install && npx prisma generate
+    startCommand: node server.js
+    plan: free
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      # Set these manually in the Render dashboard for security:
+      # JWT_ACCESS_SECRET   — a long random string
+      # JWT_REFRESH_SECRET  — a different long random string
+      # CLIENT_ORIGIN       — your Vercel URL, e.g. https://begin-xyz.vercel.app
+      - key: JWT_ACCESS_SECRET
+        generateValue: true
+      - key: JWT_REFRESH_SECRET
+        generateValue: true
+      - key: JWT_ACCESS_EXPIRES_IN
+        value: 15m
+      - key: JWT_REFRESH_EXPIRES_IN
+        value: 7d
+    disk:
+      name: sqlite-data
+      mountPath: /data
+      sizeGB: 1

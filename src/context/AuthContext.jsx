@@ -1,5 +1,9 @@
 import { createContext, useContext, useState, useEffect, useCallback } from 'react';
 
+// In production (Vercel), VITE_API_URL points to the deployed backend on Render.
+// Locally, it's empty — the Vite proxy forwards /api/* to localhost:5000.
+const API_BASE = import.meta.env.VITE_API_URL || '';
+
 const AuthContext = createContext(null);
 
 const TOKEN_KEY = 'begin_access_token';
@@ -32,7 +36,7 @@ export const AuthProvider = ({ children }) => {
       if (!token) { setLoading(false); return; }
 
       try {
-        const res = await fetch('/api/auth/me', {
+        const res = await fetch(`${API_BASE}/api/auth/me`, {
           headers: { Authorization: `Bearer ${token}` },
         });
 
@@ -60,7 +64,7 @@ export const AuthProvider = ({ children }) => {
     if (!refreshToken) { setUser(null); setAccessToken(null); return; }
 
     try {
-      const res = await fetch('/api/auth/refresh', {
+      const res = await fetch(`${API_BASE}/api/auth/refresh`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ refreshToken }),
@@ -83,7 +87,7 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const register = async ({ name, email, password }) => {
-    const res = await fetch('/api/auth/register', {
+    const res = await fetch(`${API_BASE}/api/auth/register`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ name, email, password }),
@@ -99,7 +103,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   const login = async ({ email, password }) => {
-    const res = await fetch('/api/auth/login', {
+    const res = await fetch(`${API_BASE}/api/auth/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, password }),
@@ -124,10 +128,11 @@ export const AuthProvider = ({ children }) => {
 
   /**
    * Helper for making authenticated API requests.
-   * Usage: authFetch('/api/store/notebooks')
+   * Prepends API_BASE so it works in both local dev and production.
    */
-  const authFetch = useCallback(async (url, options = {}) => {
+  const authFetch = useCallback(async (path, options = {}) => {
     const token = localStorage.getItem(TOKEN_KEY);
+    const url = `${API_BASE}${path}`;
     const res = await fetch(url, {
       ...options,
       headers: {

@@ -7,7 +7,9 @@ generator client {
 
 datasource db {
   provider = "sqlite"
-  url      = "file:./dev.db"
+  // Locally: file:./dev.db  (in server/prisma/)
+  // On Render: DATABASE_URL=file:/data/prod.db  (on the mounted persistent disk)
+  url      = env("DATABASE_URL")
 }
 
 // ─────────────────────────────────────────────

@@ -18,9 +18,19 @@ const PORT = process.env.PORT || 5000;
 // Helmet sets secure HTTP headers (XSS protection, clickjacking, etc.)
 app.use(helmet());
 
-// CORS — only allow requests from the Vite frontend
+// CORS — allow the configured frontend origin (supports multiple origins via comma separation)
+// Example CLIENT_ORIGIN: "https://begin-app.vercel.app,http://localhost:5173"
+const allowedOrigins = (process.env.CLIENT_ORIGIN || 'http://localhost:5173')
+  .split(',')
+  .map(o => o.trim());
+
 app.use(cors({
-  origin: process.env.CLIENT_ORIGIN || 'http://localhost:5173',
+  origin: (origin, callback) => {
+    // Allow requests with no origin (e.g. curl, Postman, server-to-server)
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.includes(origin)) return callback(null, true);
+    callback(new Error(`CORS: origin ${origin} not allowed`));
+  },
   credentials: true,
 }));
 
@@ -78,4 +88,5 @@ app.use((err, req, res, next) => {
 app.listen(PORT, () => {
   console.log(`✅ Begin server running at http://localhost:${PORT}`);
   console.log(`   Environment: ${process.env.NODE_ENV}`);
+  console.log(`   Allowed origins: ${allowedOrigins.join(', ')}`);
 });
