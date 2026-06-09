@@ -23,8 +23,11 @@ services:
         value: 15m
       - key: JWT_REFRESH_EXPIRES_IN
         value: 7d
-      # ⚠️ Set these manually in the Render dashboard → Environment:
-      # DATABASE_URL  — your Neon PostgreSQL connection string
-      # JWT_ACCESS_SECRET   — a long random string (32+ chars)
-      # JWT_REFRESH_SECRET  — a different long random string
-      # CLIENT_ORIGIN       — your Vercel URL, e.g. https://begin-xyz.vercel.app
+      - key: DATABASE_URL
+        sync: false
+      - key: CLIENT_ORIGIN
+        sync: false
+      - key: JWT_ACCESS_SECRET
+        generateValue: true
+      - key: JWT_REFRESH_SECRET
+        generateValue: true
